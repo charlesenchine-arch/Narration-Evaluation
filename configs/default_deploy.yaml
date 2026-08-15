@@ -1,0 +1,52 @@
+# 部署配置（B1 加固版）：MacBERT 判别器 + 窗口化表示/属性视图
+# 用于评分服务器 / reward 打分的生产配置；实验脚本（解耦等）沿用 default_macbert.yaml 全文本。
+# 加固点：
+#   1. S_repr/S_attr 只在"前 400 字符窗口"上计算 → 末尾注水不再虚涨 like 分
+#   2. α=0.5 严苛度：窗口化后 append/selfrepeat 已全堵，interleave 插入填充
+#      会被窗口部分捕捉（S_repr 0.048→0.13），α=0.5 用长度惩罚把 interleave 也压到 ≤0。
+#      H 自然长文(~2x) 约 -12%（极端长度才触发；典型长度 ≤L0 无惩罚）。
+#   3. S_disc 用全文本（MacBERT 稳健，AUC 0.9995，注水下恒定 0.007）
+
+data:
+  n_h_webnovel: 0
+  n_h_cnnsum: 0
+  n_g_coig: 0
+  n_g_realdet: 0
+  max_chars: 8000
+  max_chars_cnnsum: 30000
+  seed: 42
+
+encoder:
+  name: "BAAI/bge-small-zh-v1.5"
+  max_len: 512
+  batch_size: 32
+  device: "cpu"
+
+discriminator:
+  type: "macbert"
+  model_name: "hfl/chinese-macbert-base"
+  model_path: "data/eval_dataset/models/macbert_discriminator"
+  max_len: 512
+  batch_size: 16
+  device: "auto"
+  epochs: 3
+  lr: 0.00002
+  warmup_ratio: 0.05
+  weight_decay: 0.01
+  seed: 42
+  n_h_train: 3000
+  n_g_train: 3000
+  val_path: "data/eval_dataset/rating_set.jsonl"
+  threads: 24
+
+mix:
+  lambda_disc: 0.333333
+  lambda_repr: 0.333333
+  lambda_attr: 0.333333
+  strict_alpha: 0.5
+  strict_len_base: 0
+  window_chars: 400
+
+report:
+  out_dir: null
+  top_attributes: 8

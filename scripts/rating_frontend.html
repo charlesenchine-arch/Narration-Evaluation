@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>叙事文本评分</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Microsoft YaHei", sans-serif; background: #f5f5f7; color: #1d1d1f; line-height: 1.7; }
+  .container { max-width: 780px; margin: 0 auto; padding: 24px 16px; }
+  h1 { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+  .sub { color: #6e6e73; font-size: 13px; margin-bottom: 20px; }
+  .card { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  input[type=text] { width: 100%; padding: 10px 12px; font-size: 15px; border: 1px solid #d2d2d7; border-radius: 8px; }
+  button { background: #0071e3; color: #fff; border: none; padding: 10px 18px; font-size: 15px; border-radius: 8px; cursor: pointer; }
+  button:hover { background: #0077ed; }
+  button:disabled { background: #a1a1a6; cursor: not-allowed; }
+  .hidden { display: none; }
+  .progress { height: 6px; background: #e8e8ed; border-radius: 3px; margin: 12px 0; }
+  .progress-fill { height: 100%; background: #0071e3; border-radius: 3px; transition: width .3s; }
+  .text-block { white-space: pre-wrap; font-size: 15px; background: #fafafa; border: 1px solid #e5e5ea; border-radius: 8px; padding: 16px; margin: 12px 0; max-height: 360px; overflow-y: auto; }
+  .score-row { display: flex; gap: 8px; margin: 16px 0; }
+  .score-btn { flex: 1; padding: 12px 0; font-size: 18px; font-weight: 600; background: #f2f2f7; color: #1d1d1f; border: 2px solid transparent; border-radius: 8px; cursor: pointer; }
+  .score-btn:hover { border-color: #0071e3; }
+  .score-btn.selected { background: #0071e3; color: #fff; border-color: #0071e3; }
+  .meta { font-size: 12px; color: #86868b; margin-top: 4px; }
+  .list-item { padding: 10px 12px; border-bottom: 1px solid #f0f0f2; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+  .list-item:hover { background: #fafafa; }
+  .badge { font-size: 12px; padding: 2px 8px; border-radius: 10px; background: #e8e8ed; color: #6e6e73; }
+  .badge.done { background: #d1f0dc; color: #1d7a3c; }
+  .nav { display: flex; justify-content: space-between; margin-top: 12px; }
+  .err { color: #d70015; font-size: 13px; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>叙事文本质量评分</h1>
+  <div class="sub">请按叙事质量给每篇文本打 1-5 分（5 = 优秀，1 = 很差）。独立评分，不参考他人。</div>
+
+  <!-- 登录 -->
+  <div class="card" id="login-card">
+    <p style="margin-bottom:10px">请输入访问口令与你的评分者名字：</p>
+    <input type="password" id="login-password" placeholder="访问口令" style="margin-bottom:8px">
+    <input type="text" id="rater-name" placeholder="评分者名字（如：张三）">
+    <div style="margin-top:12px"><button onclick="login()">开始评分</button></div>
+    <div class="err" id="login-err"></div>
+  </div>
+
+  <!-- 单篇评分（直接推送，无列表） -->
+  <div class="card hidden" id="rating-card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <strong>评分者：<span id="show-rater"></span></strong>
+      <span class="badge" id="progress-text">0/0</span>
+    </div>
+    <div class="progress"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+      <strong>第 <span id="idx"></span> 篇</strong>
+      <span class="badge" id="done-badge">未评分</span>
+    </div>
+    <div class="text-block" id="text-content"></div>
+    <div class="meta" id="text-meta"></div>
+    <div class="score-row" id="score-row"></div>
+    <!-- 评论 -->
+    <div style="margin:12px 0 4px">
+      <label style="font-size:13px;color:#6e6e73">评语（可选，写下你的看法）：</label>
+      <textarea id="comment-box" rows="3" style="width:100%;margin-top:6px;padding:10px;font-size:14px;border:1px solid #d2d2d7;border-radius:8px;resize:vertical;font-family:inherit"></textarea>
+    </div>
+    <!-- 像人程度滑块（图灵测试：收集人类"像人感知"） -->
+    <div style="margin:12px 0 4px">
+      <label style="font-size:13px;color:#6e6e73">像人程度：这篇读起来像人类写的吗？（注意：不是质量好坏，是"像不像人写的"）</label>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:6px">
+        <input type="range" id="like-slider" min="0" max="100" step="1" value="50" style="flex:1">
+        <span class="badge" id="like-val" style="min-width:52px;text-align:center">50</span>
+      </div>
+      <div class="sub" id="like-hint" style="color:#d70015;font-size:12px;margin-top:4px"></div>
+    </div>
+    <div class="nav">
+      <button onclick="prev()">上一篇</button>
+      <button onclick="next()" id="next-btn">下一篇</button>
+    </div>
+    <div class="sub" style="margin-top:8px">评分后自动推送下一篇。可翻回修改。</div>
+  </div>
+  <div class="sub hidden" id="done-msg" style="margin-top:12px;text-align:center;color:#6e6e73"></div>
+</div>
+
+<script>
+let ALLOC = null, STATE = null, RATER = null;
+let myItems = [], curIdx = 0, ratings = {}, comments = {}, likes = {};
+let likeTouched = false;
+let openedAt = Date.now();
+
+// 像人滑块：拖动即视为已确认
+document.getElementById('like-slider').addEventListener('input', () => {
+  likeTouched = true;
+  document.getElementById('like-val').textContent = document.getElementById('like-slider').value;
+  document.getElementById('like-hint').textContent = '';
+});
+
+async function getJSON(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('请求失败');
+  return r.json();
+}
+
+async function login() {
+  const name = document.getElementById('rater-name').value.trim();
+  const password = document.getElementById('login-password').value;
+  if (!name) { document.getElementById('login-err').textContent = '请输入名字'; return; }
+  try {
+    // 校验口令
+    const pw = await fetch('/api/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({password})
+    }).then(r => r.json());
+    if (!pw.ok) {
+      document.getElementById('login-err').textContent = pw.require ? '口令错误，请重试' : '访问被拒绝';
+      return;
+    }
+    // 任意名字均可：首次访问自动分配文本
+    const res = await getJSON('/api/items?rater=' + encodeURIComponent(name));
+    STATE = await getJSON('/api/state');
+    RATER = res.name;
+    myItems = res.items || [];
+    // 已有评分、评语、像人分
+    ratings = (STATE.raters && STATE.raters[name]) || {};
+    comments = (STATE.comments && STATE.comments[name]) || {};
+    likes = (STATE.likes && STATE.likes[name]) || {};
+    document.getElementById('login-card').classList.add('hidden');
+    document.getElementById('rating-card').classList.remove('hidden');
+    document.getElementById('show-rater').textContent = name;
+    // 直接推送到第一个未评分的篇章
+    const firstUnrated = myItems.findIndex(id => ratings[id] === undefined);
+    openRating(firstUnrated === -1 ? 0 : firstUnrated);
+  } catch (e) {
+    document.getElementById('login-err').textContent = '加载失败: ' + e.message;
+  }
+}
+
+function updateProgress() {
+  const done = myItems.filter(id => ratings[id] !== undefined).length;
+  document.getElementById('progress-text').textContent = `${done}/${myItems.length}`;
+  document.getElementById('progress-fill').style.width = `${(done / myItems.length * 100)}%`;
+}
+
+async function openRating(i) {
+  curIdx = i;
+  openedAt = Date.now();
+  const id = myItems[i];
+  const it = await getJSON('/api/text?id=' + encodeURIComponent(id));
+  document.getElementById('rating-card').classList.remove('hidden');
+  document.getElementById('idx').textContent = i + 1;
+  document.getElementById('text-content').textContent = it.text;
+  // 盲评默认不显示来源；label_mode=correct/false 时服务器返回 label_text 则显示
+  const metaEl = document.getElementById('text-meta');
+  if (it.label_text) {
+    metaEl.textContent = '来源标注：' + it.label_text;
+  } else {
+    metaEl.textContent = '';
+  }
+  // 加载已有评语
+  const box = document.getElementById('comment-box');
+  box.value = comments[id] || '';
+  // 恢复像人滑块（已有则回填，新篇归 50 并需拖动确认）
+  const prevLike = likes[id];
+  const slider = document.getElementById('like-slider');
+  slider.value = prevLike === undefined ? 50 : prevLike;
+  document.getElementById('like-val').textContent = slider.value;
+  likeTouched = false;
+  document.getElementById('like-hint').textContent = '';
+  renderScoreRow();
+  updateDoneBadge();
+}
+
+const SCORE_LABELS = ['拉完了', 'NPC', '人上人', '顶级', '夯'];
+
+function renderScoreRow() {
+  const row = document.getElementById('score-row');
+  row.innerHTML = '';
+  const id = myItems[curIdx];
+  const cur = ratings[id];
+  for (let s = 1; s <= 5; s++) {
+    const b = document.createElement('button');
+    b.className = 'score-btn' + (cur === s ? ' selected' : '');
+    b.innerHTML = `<strong>${SCORE_LABELS[s-1]}</strong><br><small style="font-weight:400">${s}分</small>`;
+    b.onclick = () => submitScore(s);
+    row.appendChild(b);
+  }
+}
+
+function updateDoneBadge() {
+  const id = myItems[curIdx];
+  const done = ratings[id] !== undefined;
+  document.getElementById('done-badge').textContent = done ? '已评 ' + ratings[id] + ' 分' : '未评分';
+  document.getElementById('done-badge').className = 'badge ' + (done ? 'done' : '');
+}
+
+async function submitScore(score) {
+  const id = myItems[curIdx];
+  // 像人滑块：新篇必须拖动确认过；翻回改已评过的篇则沿用原值
+  const alreadyLiked = likes[id] !== undefined;
+  if (!likeTouched && !alreadyLiked) {
+    document.getElementById('like-hint').textContent = '请先拖动上面的"像人程度"滑块（表示你看过并给出判断）';
+    return;
+  }
+  const like = likeTouched ? parseInt(document.getElementById('like-slider').value, 10) : likes[id];
+  ratings[id] = score;
+  likes[id] = like;
+  const comment = document.getElementById('comment-box').value.trim();
+  comments[id] = comment;
+  // 立即渲染选中
+  renderScoreRow();
+  updateDoneBadge();
+  updateProgress();
+  // 保存到服务器（含评语 + 停留时间 + 像人分）
+  const stay_ms = Date.now() - openedAt;
+  try {
+    await fetch('/api/rate', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({rater: RATER, id, score, comment, stay_ms, like})
+    });
+  } catch (e) {
+    console.error('保存失败', e);
+  }
+  // 自动下一篇；当前批评完则尝试加载下一批（评委可一直评下去）
+  if (curIdx < myItems.length - 1) {
+    setTimeout(() => openRating(curIdx + 1), 200);
+  } else {
+    setTimeout(() => loadMoreIfAny(), 200);
+  }
+}
+
+async function loadMoreIfAny() {
+  const msg = document.getElementById('done-msg');
+  try {
+    const res = await getJSON('/api/items?rater=' + encodeURIComponent(RATER));
+    const fresh = res.items || [];
+    if (fresh.length > myItems.length) {
+      myItems = fresh;
+      msg.classList.add('hidden');
+      msg.textContent = '';
+      updateProgress();
+      openRating(curIdx + 1);
+    } else {
+      msg.classList.remove('hidden');
+      msg.textContent = '没有更多文本啦，感谢你的评分！';
+    }
+  } catch (e) {
+    msg.classList.remove('hidden');
+    msg.textContent = '加载下一批失败: ' + e.message;
+  }
+}
+
+function prev() {
+  if (curIdx > 0) openRating(curIdx - 1);
+}
+function next() {
+  if (curIdx < myItems.length - 1) openRating(curIdx + 1);
+  else loadMoreIfAny();
+}
+</script>
+</body>
+</html>

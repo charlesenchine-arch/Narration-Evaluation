@@ -1,0 +1,19 @@
+# Secrets — 勿提交
+secrets.env
+
+# Local tool config
+.claude/
+
+# Python caches
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Runtime logs
+logs/
+
+# Model weights & HF cache (too large for GitHub)
+data/eval_dataset/hf_cache/
+data/eval_dataset/models/
+*.safetensors
+*.bin

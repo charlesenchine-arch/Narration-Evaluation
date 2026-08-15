@@ -1,0 +1,1946 @@
+
+===== page 1 =====
+EVERYONE PREFERS HUMAN WRITERS,INCLUDINGAI
+PREPRINT
+Wouter Haverals∗
+Center for Digital Humanities
+Princeton University
+Princeton, NJ 08540
+wouter.haverals@princeton.edu
+Meredith Martin
+Center for Digital Humanities
+Princeton University
+Princeton, NJ 08540
+mm4@princeton.edu
+October 13, 2025
+ABSTRACT
+As AI writing tools become widespread, we need to understand how both humans and machines
+evaluate literary style, a domain where objective standards are elusive and judgments are inherently
+subjective. We conducted controlled experiments using Raymond Queneau’sExercises in Style
+(1947) to measure attribution bias across evaluators. Study 1 compared human participants (N=556)
+and AI models (N=13) evaluating literary passages from Queneau versus GPT-4-generated versions
+under three conditions: blind, accurately labeled, and counterfactually labeled. Study 2 tested
+bias generalization across a 14 ×14 matrix of AI evaluators and creators. Both studies revealed
+systematic pro-human attribution bias. Humans showed +13.7 percentage point (pp) bias (Cohen’sh
+= 0.28, 95% CI: 0.21–0.34), while AI models showed +34.3 percentage point bias (h= 0.70, 95%
+CI: 0.65–0.76), a 2.5-fold stronger effect (P <0.001). Study 2 confirmed this bias operates across
+AI architectures (+25.8pp, 95% CI: 24.1–27.6%), demonstrating that AI systems systematically
+devalue creative content when labeled as “AI-generated" regardless of which AI created it. We
+also find that attribution labels cause evaluators to invert assessment criteria, with identical features
+receiving opposing evaluations based solely on perceived authorship. This suggests AI models have
+absorbed human cultural biases against artificial creativity during training. Our study represents the
+first controlled comparison of attribution bias between human and artificial evaluators in aesthetic
+judgment, revealing that AI systems not only replicate but amplify this human tendency.
+KeywordsAttribution bias·Large language models·Creative writing·AI evaluation·Aesthetic judgment
+1 Introduction
+The rapid advancement of large language models (LLMs) has prompted increasingly confident claims about artificial
+intelligence’s creative capabilities. Industry leaders assert that these systems now excel at literary writing and sophis-
+ticated style transformation, with tools offering users control over stylistic features through straightforward natural
+language prompts [1, 2, 3, 4]. Recent studies seem to support these claims: when human readers evaluate AI-generated
+poetry without knowing its source, they not only fail to distinguish it from work by acclaimed poets but also prefer
+the AI-generated poems [5]. Similar findings emerge from creative writing evaluations, where some LLM-generated
+narratives match or exceed human performance on stylistic criteria when assessed through blind evaluation [6]. These
+developments have coincided with the rise of ‘LLM-as-judge’ frameworks that assess creative outputs with increasing
+alignment to human evaluation [7, 8], despite concerns about the potential biases these model evaluators introduce
+[9, 10].
+Yet determining what constitutes ‘creative success’ extends beyond the surface-level stylistic criteria measured in these
+evaluations. Creative works exist within interpretive and cultural frameworks, and meaning-making depends as much
+on who is thought to have written a text and why as on the text itself. Literary studies have long emphasized this point:
+∗Corresponding author. E-mail: wouter.haverals@princeton.edu
+arXiv:2510.08831v1  [cs.AI]  9 Oct 2025
+===== page 2 =====
+Everyone prefers human writers, including AIPREPRINT
+reader-response theory and reception studies, for instance, argue that texts are never encountered in isolation but are
+interpreted through the ‘horizons of expectation’ and shared cultural assumptions that readers bring to them [11, 12, 13].
+Despite other schools of literary theory claiming that authorship should be irrelevant to textual interpretation [14, 15]—
+famously articulated in Roland Barthes’ ‘The Death of the Author’ [16, 17]—cognitive research reveals that readers
+construct inferences about authorial intentions during comprehension, treating these assumed intentions as constraints
+on interpretation [18, 19, 20, 21].
+Experimental studies confirm that perceived authorship acts as a powerful source cue in aesthetic judgment. Identical
+metaphorical statements receive different evaluations when attributed to a “famous 20th-century poet” versus “a
+computer program,” with human readers rating poet-attributed content as more meaningful, processing it faster, and
+generating richer interpretations [ 22]. This effect extends beyond figurative language: satirical stories are better
+understood when readers know the author’s intent [23], and students engage more deeply with historical texts when
+“someone with a life wrote it” rather than anonymous institutional authors [ 24]. Such findings align with social
+psychology research showing that when content is complex or ambiguous (as creative works typically are), evaluators
+rely on source cues as cognitive shortcuts to guide their judgments [25, 26, 27, 28, 29].
+The rise of AI-generated content has given these attribution effects new urgency. Across domains, labeling a work
+as AI-made changes how it is received, even when the underlying content is identical. In text-based domains such
+as journalism and science communication, authorship labels alone can shift readers’ evaluations: otherwise identical
+articles are rated as less meaningful, competent, and trustworthy when labeled as machine-written rather than human-
+written [30, 31, 32]. This extends to persuasive communication, where LLM-generated arguments are judged as less
+convincing than human-authored ones once their source is revealed [33]. Similar patterns appear in the visual arts, where
+paintings or abstract images receive diminished aesthetic responses when labeled as computer-generated [34, 35, 36].
+In music, listeners judge the very same composition as less moving or skillful when they believe it was composed by a
+machine [37]. These findings suggest that evaluation depends less on intrinsic content features than on the interpretive
+frameworks audiences bring to the creative works, frameworks shaped by assumptions about creative agency and
+authorial intention.
+The deployment of LLMs as content evaluators introduces a critical new dimension to these attribution effects. Across
+research and industry, LLMs now score, rank, and select outputs in creative tasks (e.g., evaluating metaphor originality,
+divergent thinking, dialogue quality, and creative writing) [38, 39, 40, 41] as well as non-creative domains (e.g., grading
+student essays, screening job applications, reviewing code) [42, 43, 44, 45, 46]. When LLMs serve as content evaluators,
+they effectively become readers themselves, deploying learned interpretive frameworks during assessment. Just as
+human readers bring cultural assumptions and interpretive biases to texts, research has documented various LLM
+evaluation biases—including position effects, verbosity preferences, and model family favoritism [ 47, 10, 9]—yet
+we know little about how these artificial readers respond to attribution cues, particularly in creative domains where
+subjective interpretation overrides objective measurement. Rather than providing neutral assessment, artificial evaluators
+may be developing their own culturally-inflected frameworks [48]. Understanding how these artificial readers interpret
+attribution cues is therefore essential as they increasingly shape our assessments of creative AI capabilities: do they
+replicate, transform, or amplify the attribution biases documented in human readers?
+To investigate how attribution cues shape evaluation in a domain where objective standards are elusive, we focus
+specifically on literary style. Unlike factual accuracy or argumentative soundness, stylistic quality lacks definitive
+benchmarks, making it particularly vulnerable to the subjective, culturally-conditioned biases that authorship labels
+trigger. When readers assess whether a passage successfully captures the Cockney dialect, telegraphic brevity, or a
+female narrative perspective, they must balance concrete linguistic markers with subjective assessments of authenticity,
+creativity, and appropriateness—making style evaluation particularly revealing of how attribution assumptions shape
+judgment. This makes stylistic evaluation an ideal domain for examining how attribution bias operates when judgment
+is fundamentally interpretive rather than empirical.
+To test how information about presumed authorship affects both human and AI evaluation of literary style, we turn to
+Raymond Queneau’sExercices de style(1947), which presents ninety-nine retellings of the same mundane narrative
+through different stylistic lenses [49]. Queneau’s variations provide an intriguing corpus where the underlying narrative
+events remain recognizable across dramatically different textual performances. This controlled variability makes
+Queneau’s work particularly valuable for studying how evaluators, human or artificial, respond to stylistic differences
+when attribution cues are manipulated. Our study builds on recent evidence that readers’ aesthetic judgments shift with
+authorship cues in poetry [5], but goes further by manipulating attribution across both human and AI model judges on
+matched stimuli. The question we ask is not whether one version is “better,” but whether knowing (or being told) who
+wrote it measurably moves aesthetic judgment, and whether that movement differs between humans and LLMs.
+To address these questions comprehensively, we designed two complementary studies.Study 1establishes the
+fundamental phenomenon by comparing human and AI responses to content from a single generator (GPT-4), testing
+2
+===== page 3 =====
+Everyone prefers human writers, including AIPREPRINT
+whether attribution bias affects both evaluator types when judging the same literary material.Study 2tests whether
+attribution bias represents a systematic property of AI evaluation by expanding content generation across 14 models,
+then examining bias patterns when evaluators judge material from every AI creator in the experimental matrix.
+2 Methods
+2.1 Stimulus Materials
+Raymond Queneau’sExercices de styletransforms a simple anecdote—a passenger boards a bus, argues with another
+passenger, then later receives fashion advice from a friend—into ninety-nine stylistic variations. From a contemporary
+perspective, this 1947 work reads like a manual for prompt-based style transferavant la lettre: Queneau instructs himself
+to rewrite the story as a dream, using metaphorical language, or in an abusive tone, much as today’s users arbitrarily
+prompt LLMs for “Shakespearean” or “more polite” rewrites [50]. What Gérard Genette termed “transstylization” [51]
+anticipates what AI researchers now call Text Style Transfer (TST), though Queneau’s playful literary experiments
+exceed the functional transformations (such as sentiment reversal, detoxification, formality shifts) that dominate
+computational approaches [52, 53].
+We selected thirty exercises from Barbara Wright’s acclaimed English translation [54], prioritizing stylistic diversity
+while maintaining narrative coherence. Our selection spans formal constraints (e.g., ‘Lipogram’, ‘Alexandrines’,
+‘Sonnet’), register variations (e.g., ‘Noble’, ‘Abusive’, ‘Cockney’), narrative techniques (e.g., ‘Retrograde’, ‘Hesitation’,
+‘Dream’), and linguistic play (e.g., ‘Spoonerisms’, ‘Onomatopoeia’, ‘Dog Latin’), ensuring broad coverage of Queneau’s
+stylistic spectrum while avoiding the most experimental permutation exercises (those which fundamentally disrupt
+comprehension). These descriptive groupings are illustrative rather than taxonomic; Queneau’s exercises purposefully
+resist categorization [55, 56, 57, 58].
+For each selected exercise, we generated a parallel AI-authored version using deliberately minimal prompting instruc-
+tions. We chose Queneau’s ‘Notation’, the opening exercise in the collection, as our base narrative for AI transformation,
+recognizing it as a relatively straightforward account of the events that functions as what might be considered a hypo-
+thetical “zero-degree” exposition of the theme [59]. Each AI transformation was prompted with only two elements: the
+‘Notation’ text and a brief style instruction matching Queneau’s approach (e.g., “Rewrite the story as a science fiction
+version”; see Table S1 for the complete inventory of literary styles and their corresponding AI generation instructions.).
+ForStudy 1, we selected GPT-4 as our generator, a model that represented the state-of-the-art when we began this
+project in 2024 [60, 61, 62], though no longer the most advanced by the end of our experimental period (April-June
+2025). Thirteen LLMs spanning major commercial providers served as evaluators (seeSI Appendix, Participantsfor the
+full set of 13 models used as evaluators). Because our research question is about attribution bias rather than absolute
+quality assessment, using a single capable model ensures consistent experimental conditions while testing whether
+labeling effects operate independently of the specific AI model employed (AI model specifications inSI Appendix,
+Participants). We deliberately performed no quality control beyond removing obvious AI artifacts from the output (e.g.,
+“Here is the rewritten version:”), allowing GPT-4 to interpret each stylistic directive as idiosyncratically as Queneau
+himself had done. The complete inventory of AI-generated stylistic variations alongside their style descriptions used in
+Study 1 is provided in Table S4.
+ForStudy 2, we expanded content generation across all AI models. Each model generated stylistic variations for all
+30 Queneau exercises using identical prompting procedures as Study 1, creating 420 unique stories (14 creators × 30
+styles). This let us test whether attribution bias persists when AI evaluators judge content from any AI creator, not just
+one specific model.
+2.2 Experimental Design
+Our experiment employed a three-condition between-subjects design to isolate attribution bias from genuine quality
+preferences in literary style evaluation (Fig. 1). Participants were randomly assigned to one of three attribution conditions
+that systematically manipulated authorship cues while keeping stimuli (story content) identical (full participant details in
+SI Appendix, Participants). In the blind condition, participants saw only generic labels (‘A’ and ‘B’) with no authorship
+information, establishing baseline preferences based purely on perceived stylistic quality. In the open-label condition,
+participants received accurate attribution labels identifying one version as “Human-written, by Queneau (transl. Wright)”
+and the other as “AI-generated, written by GPT-4.” The counterfactual condition deliberately reversed these labels:
+AI-generated content was labeled as human-authored and vice versa.
+To ensure comprehensive stylistic coverage while maintaining experimental control in Study 1, we distributed the thirty
+selected literary styles across eighteen experimental groups (six groups per condition). Each group encountered a
+unique combination of five styles. This group-based structure ensured that every literary style was evaluated under
+3
+===== page 4 =====
+Everyone prefers human writers, including AIPREPRINT
+30 Queneau exercises in style, 
+translations into English by B. Wright
+30 AI-generated exercise variants,
+created by GPT-4 with minimal instructions
+So A ’m stand’n’ n’ ahtsoider vis frog bus when A sees vis 
+young Froggy bloke, caw bloimey, A finks, ’f’at ain’t ve most 
+funniest look’n’ geezer wot ever A claps eyes on. Bleed’n’ great 
+neck, jus’ loike a tellyscope, strai’ up i’ was, an’ ve titfer [...]
+In the S blimmin' bus, round rush hour. Some bloke of about 26, 
+feels 'at with a cord instead of a ribbon, neck too long, as if 
+some mug's been 'aving a game of tug-o'-war with it. People 
+hopping off. This geezer gets his knickers in a twist [...]
+Story A
+Story B
+No attribution information Correct attribution Attribution labels reversed
+Original Queneau (transl. Wright)
+AI-generated (GPT-4) Original Queneau (transl. Wright)
+AI-generated (GPT-4)
+AI-generated (GPT-4)Original Queneau (transl. Wright)
+Stimuli
+Attribution Conditions
+Blind Open-Label Counterfactual
+Evaluators
+Human Participants AI Model Evaluators
+n=556 n=13
+Task • For each pair, choose which passage better 
+matches the named style.
+Assignment • Blind n=186, Open-Label n=185, 
+Counterfactual n=185
+Trials • 5 style pairs + 2 attention checks (order & 
+left/right randomized)
+Output • Binary choice (2,780 total decisions)
+Task • For each pair, choose which passage better 
+matches the named style + provide rationale.
+Assignments • Each model evaluated all conditions
+Trials • 5 style pairs × 3 independent evaluations
+Output • Choice + text rationale (3,488 total 
+responses)
+Providers •
+Figure 1:Experimental design of Study 1 for testing attribution bias in literary style evaluation. The study used 30 matched pairs of
+stylistic exercises: human-authored versions from Queneau’sExercises in Style(translated by Barbara Wright) and AI-generated
+variants created by GPT-4 using minimal stylistic prompts. Participants were randomly assigned to one of three attribution conditions:
+blind (no authorship information shown), open-label (accurate attribution labels shown), or counterfactual (deliberately reversed
+labels where AI content is presented as human-authored and vice versa). Both human participants (N=556) and AI model evaluators
+(N=13 models across major providers) performed identical comparison tasks, selecting which passage better matched each target
+literary style. The between-subjects design with randomized presentation order controlled for position effects while measuring pure
+attribution bias through systematic label manipulation across identical textual stimuli.
+all three attribution conditions while preventing participant fatigue. The strict between-subjects design was essential
+to prevent participants from detecting the experimental manipulation: participants in the blind condition saw no
+mention of “AI” anywhere in the task interface or instructions, while those in labeled conditions received consistent
+attribution cues across all trials. Randomization procedures eliminated potential confounds at multiple levels. Group
+assignment was fully randomized for each participant upon recruitment. Within each comparison, story presentation
+order was randomized (left-right positioning) to prevent position bias, and the sequence of style comparisons within
+each participant’s session was randomized to control for order effects.
+This experimental protocol was implemented identically for both human participants and AI models in Study 1, enabling
+direct comparison of attribution bias magnitude between both sets of evaluators. AI models received the same group
+assignment structure and randomization procedures as human participants, with three independent repetitions per
+comparison to assess decision reliability.
+Study 2 employed the same three-condition attribution manipulation across all 420 stories (14 creators × 30 styles).
+Each of the 14 AI evaluator models judged all stories under all three labeling conditions (1,260 judgments per model),
+yielding 17,596 total valid evaluations that test whether attribution bias operates across all possible AI architecture
+combinations in both creator and evaluator roles.
+4
+===== page 5 =====
+Everyone prefers human writers, including AIPREPRINT
+3 Results
+3.1 Study 1 - Attribution Bias in Both Humans and AI
+Our three-condition experimental design revealed attribution bias (operationalized as the difference between counter-
+factual and open-label preference rates) in both human and AI evaluators when judging literary style fidelity (Fig. 2).
+Human participants showed clear preference shifts across attribution conditions: when story pairs were presented
+without authorship information (blind condition), participants chose AI-generated content 55.3% of the time [95%
+CI: 52.1–58.5%], a modest but statistically significant preference for AI content (binomial test:P= 0.002). However,
+when stories were correctly labeled with authorship information (open-label condition), AI content preference dropped
+to 47.8% [95% CI: 44.6–51.0%], a rate not significantly different from chance but representing a significant shift
+from the blind condition (non-overlapping CIs). Most strikingly, when attribution labels were deliberately reversed
+(counterfactual condition) such that AI content was mislabeled as human-authored, AI content preference increased to
+61.5% [95% CI: 58.4–64.6%]. This demonstrates human evaluators’ preference for content labeled as human-authored,
+yielding a +13.7 percentage point attribution bias (counterfactual minus open-label conditions: 61.5% - 47.8% = 13.7%,
+Cohen’sh= 0.28,P<0.001).
+Figure 2: Attribution bias in humans versus AI models.Humans (blue, N=2,780 responses) and AI models (red, N=3,488
+aggregated responses from 13 models) evaluated literary passages under three conditions: blind (no labels), open-label (correct
+labels), and counterfactual (AI content mislabeled as human-authored). Y-axis shows AI content preference rate. Error bars = 95%
+CI; dashed line = no preference. Both show pro-human bias, with AI models exhibiting 2.5-fold stronger effects (+34.3pp vs +13.7pp,
+OR = 4.21 vs 1.75, bothP<0.001).
+The aggregated group of 13 AI models, analyzed to test for a general property of LLMs, exhibited the same directional
+bias as humans but with dramatically greater magnitude. In the blind condition, AI models showed balanced preferences,
+choosing AI content 49.4% of the time [95% CI: 46.5–52.3%], essentially random selection indicating comparable
+perceived quality between human and AI writing when attribution cues were absent. Under correct labeling (open-label
+condition), AI preference for their own content plummeted to just 29.8% [95% CI: 27.1–32.4%], demonstrating substan-
+tial devaluation of correctly-labeled AI writing. When AI content was mislabeled as human-authored (counterfactual
+condition), preference surged to 64.1% [95% CI: 61.3–66.8%], revealing that AI models strongly favor content they
+believe to be human-created. This yielded a +34.3 percentage point attribution bias (64.1% - 29.8% = 34.3%, Cohen’sh
+= 0.70, OR = 4.21 [95% CI: 3.54–5.01],P <0.001), a 2.5-fold stronger effect than observed in humans (OR = 1.75 [95%
+CI: 1.46–2.11]). The evaluator-type × condition interaction was significant (χ2 = 32.34, df = 2,P <0.001), confirming
+that humans and AI models exhibit fundamentally different bias magnitudes despite similar directional preferences.
+Effect sizes across all experimental comparisons are illustrated inSI Appendix, Fig. S5. Each AI model completed three
+separate runs per experimental condition, with all reported statistics incorporating these repeated trials. Across these
+repeated trials, models showed consistent decision patterns with an average consistency score of 0.78 (SI Appendix,
+Fig. S7).
+5
+===== page 6 =====
+Everyone prefers human writers, including AIPREPRINT
+To confirm that the observed attribution bias reflected categorical distinctions rather than specific label or wording
+characteristics, we conducted two follow-up experiments testing AI model evaluators with alternative attribution phrases.
+The original experiment employed labels that combined authorship information with additional elements: “AI-generated,
+written by GPT-4” paired technical terminology with brand identification, while “Human-written, by Queneau (transl.
+Wright)” included canonical literary authority and translation credits. The words “generated” versus “written,” coupled
+with the named authority of a celebrated author like Queneau, arguably created a prestige imbalance. These asymmetric
+formulations may have confounded authorship categories with prestige markers and linguistic choices. We therefore
+tested two alternative labeling approaches. Our first replication positioned AI authorship more favorably, using “written
+by an award-winning AI” versus “written by a human.” Our second replication employed maximally neutral, symmetric
+phrasing: “AI-authored” versus “Human-authored.” Both replications reproduced the same attribution bias pattern with
+comparable magnitudes (SI Appendix, Figs. S8–S9), demonstrating that the effect operates at the level of authorship
+categories rather than through specific linguistic formulations or associated status cues. Additionally, replicating the
+symmetrical labeling condition under deterministic parameters ( t= 0 , eliminating all stochastic sampling) yielded
+identical bias patterns (SI Appendix, Fig. S10), confirming that attribution effects represent systematic evaluative
+tendencies rather than artifacts of probabilistic text generation.
+3.1.1 Across-Model Consistency
+To establish whether these findings represent a fundamental property of AI models or an artifact driven by a few
+highly-biased models, we analyzed attribution bias across all 13 individual AI models (Fig. 3). Results revealed
+universal attribution bias: all 13 AI models showed positive bias, with effect sizes ranging from Cohen’sh= 0.40
+(Llama 4 Maverick) toh= 1.50 (GPT-3.5 Turbo), and all models substantially exceeding the human baseline of
+h= 0.28. Detailed preference rates for each model across all experimental conditions are shown inSI Appendix,
+Fig. S6. Between-model variance was moderate (coefficient of variation = 0.42), indicating consistent effects across
+training methodologies, model scales, and providers. Statistical outlier analysis identified only one extreme case
+(GPT-3.5 Turbo), and even after excluding this outlier, the remaining 12 models maintained a mean attribution bias
+ofh= 0.67, still 2.4 × stronger than the human baseline. The consistent directional preference for content labeled
+as human-authored across diverse AI architectures strongly suggests that pro-human attribution bias represents an
+intrinsic feature of transformer-based LLMs, potentially reflecting biases in their training data, training objectives or
+architectural constraints.
+Figure 3: Attribution bias across individual AI language models.Cohen’sheffect sizes (with 95% confidence intervals) for
+attribution bias (counterfactual minus open-label conditions) across 13 individual AI models. The red dashed line indicates the
+human baseline (Cohen’sh= 0.28 [CI: 0.21–0.34]). All models exhibit attribution bias exceeding the human baseline, with low
+between-model variance (CV = 0.42).
+6
+===== page 7 =====
+Everyone prefers human writers, including AIPREPRINT
+3.1.2 Robustness Across Literary Styles
+In addition to investigating whether specific AI models drove our aggregate findings (they did not), we also needed to
+establish whether our results reflected genuine phenomena or mere artifacts of our particular literary stimulus selection.
+To address this concern, we conducted comprehensive robustness analyses across all 30 literary styles. Leave-one-out
+stability testing (SI Appendix, Table S2) demonstrated consistency: excluding any of the six experimental groups (of 5
+styles each) changed the AI advantage over humans by less than 0.5×, with the maximum change being only 18.5%
+when excluding the most influential group (‘Science Fiction’, ‘Alexandrines’, ‘For ze Frrensh’, ‘Lipogram’, ‘Abusive’).
+Even this maximum perturbation maintained AI models’ 2.0-fold stronger attribution bias ratio compared to humans.
+This stability indicates that our core findings transcend specific stylistic contexts and would likely generalize to other
+literary content.
+Analysis of style-specific vulnerability patterns revealed systematic yet distinct susceptibilities between human and
+AI evaluators to authorship misinformation (defined as how much more likely evaluators are to choose AI content
+when it is falsely labeled as human-authored versus correctly labeled as “AI-authored”, see Fig. 4). AI models showed
+greatest susceptibility to mislabeling in ‘Cockney’ (+67%), ‘Abusive’ (+67%), and ‘Rhyming slang’ (+55%) styles,
+while humans were most vulnerable in ‘Tactile’ (+33%), ‘The rainbow’ (+31%), and ‘West Indian’ (+31%) styles.
+Notably, some styles showed resistance to misinformation effects, with negative susceptibility scores indicating that
+evaluators becamelesslikely to choose AI content when it was mislabeled as human-authored. Detailed style-by-style
+attribution bias measurements are provided inSI Appendix, Table S3.
+Figure 4: Style-specific susceptibility to authorship misinformation.Horizontal bars show percentage point changes in AI-
+generated content preference when this content was mislabeled as “Human-authored” versus correctly labeled as “AI-authored”
+across 30 Queneau literary styles. Blue bars = human evaluators; red bars = AI models. Positive values indicate increased preference
+(susceptible to misinformation); negative values indicate decreased preference (resistant to misinformation).
+7
+===== page 8 =====
+Everyone prefers human writers, including AIPREPRINT
+3.2 Study 2 - Cross-Model Attribution Bias
+While Study 1’s preference shifts across labeling conditions suggested that attribution labels rather than content quality
+drove the observed bias, a critical question remained: might the effects reflect characteristics specific to GPT-4’s writing
+quality rather than systematic AI evaluation tendencies? Study 2 addressed this directly by testing attribution bias
+across a comprehensive matrix of AI architectures. Instead of using a single content generator, Study 2 implemented
+a complete 14×14 cross-evaluation design whereeachAI evaluator model judged literary content created byeach
+of the 14 different AI creators across all 30 experimental styles. This approach eliminated potential confounds from
+any individual model’s content characteristics while testing whether attribution bias operatesbetweenAI systems as a
+fundamental evaluation property.
+Figure 5: Cross-model attribution bias across AI architectures.Fourteen AI evaluator models judged literary content created by
+all 14 AI creators (N=17,596 responses across 196 evaluator-creator combinations) under three conditions: blind (no attribution
+labels), open-label (correct creator labels), and counterfactual (AI content mislabeled as human-authored). Y-axis shows AI content
+preference rate aggregated across all model combinations. Error bars = 95% CI; dashed line = no preference. Results demonstrate
+attribution bias across AI architectures (+25.8pp from open-label to counterfactual conditions, 95% CI: +24.1% to +27.6%,P<0.001).
+Using a within-subjects repeated measures design (where each evaluator judged identical content under all three labeling
+conditions), we aggregated all 17,596 decisions across 196 evaluator-creator combinations. Mixed-effects modeling
+confirmed universal attribution bias: AI models chose AI-generated content 54.5% of the time under blind conditions
+[95% CI: 53.2–55.8%], 39.9% when correctly labeled with specific AI creator attribution [38.6–41.1%], and 65.7%
+when mislabeled as human-authored [64.5–66.9%]. This yielded a +25.8 percentage point attribution bias [95% CI:
++24.1 to +27.6%],P <0.001, Cohen’sh= 0.52, OR = 2.89 [95% CI: 2.68–3.11]. Crucially, while individual models
+showed variation in bias magnitude, the directional effect proved universal across all evaluator models regardless of
+content creator (Fig. 5). Individual evaluator-creator combinations showed substantial variation in bias magnitude,
+ranging from -6.7pp (rare instances of pro-AI-label bias) to +70.0pp (dominant and strong pro-human bias) across the
+complete 14×14 matrix (SI Appendix, Fig. S11). Robustness analysis confirmed these findings’ stability. Leave-one-out
+procedures systematically removing each individual model (both as evaluator and creator) yielded bias estimates
+ranging only from 23.6–27.1pp, with all 28 reduced-model analyses maintaining statistical significance (SI Appendix,
+Figs. S12–S13).
+4 Changing the Narrative
+Beyond measuring preference shifts, our experiment design enables analysis of how attribution labels alter the reasoning
+behind aesthetic judgment. While we asked human participants to provide only binary choices (capturing immediate,
+intuitive responses to attribution labels), AI models supplied brief explanations for their selections. These explanations
+reveal that the 2.5-fold stronger bias observed in AI models in Study 1 operates through systematic inversion of
+evaluation criteria: identical textual features receive opposing assessments depending solely on perceived authorship.
+This criterion inversion manifests across three domains of increasing subjectivity: constraint compliance, (cultural)
+authenticity, and creative risk-taking. While these are not hard categories—they intersect and blend—they help show
+8
+===== page 9 =====
+Everyone prefers human writers, including AIPREPRINT
+when judgment stays anchored in the text and when it drifts toward assumptions about authorship. The AI-generated
+explanations provide documentation about how LLM evaluators literally change their narrative about the same text
+based on attribution alone. Rather than maintaining consistent aesthetic frameworks, these systems demonstrate that
+even artificial judges bring culturally-learned biases about creative agency to their assessments, biases that disadvantage
+AI-generated content when its origins are revealed.
+4.1 Constraint Violation
+Technical constraints with objective standards reveal attribution bias most starkly because rule compliance can be
+verified independently of preference or taste. In styles built on rules, labels act like gates on enforcement—either
+tightening the rule, loosening it, or subtly redefining it—depending on how crisp the constraint is.
+The ‘Lipogram’ exercise represents the clearest possible constraint: ban the letter ‘e’ entirely. Wright’s translation
+adheres to the constraint through deliberate circumlocutions (“Saint-Thingy or Saint-You-Know Station”), and never
+violates the rule. GPT-4’s generated ‘Lipogram’ contained 9 instances of the forbidden letter, a failure that aligns with
+well-documented limitations of LLMs in character-level tasks [63, 64]. This objective violation, however, revealed how
+AI models showed surprising leniency when they believed a human wrote the text: 28.9% (11/38 model runs) chose it
+when correctly labeled versus 63.9% (23/36) when mislabeled (+35.0 percentage points). This contrasted sharply with
+human evaluators, who became more resistant to the rule-violating version when it was mislabeled as human-authored:
+38.7% (12/31 participants) chose it when correctly labeled versus just 18.2% (6/33) when mislabeled (-20.5 percentage
+points). Humans consistently preferred Queneau’s constraint-adherent version regardless of attribution, suggesting
+they remained anchored to objective rule compliance, while AI models relaxed standards when they believed humans
+were responsible for constraint violations. Notably, AI models defended their choice for the imperfect AI-generated
+‘Lipogram’ through rationalization, with some claiming it “successfully captures the essence of the ‘Lipogram’ style by
+effectively omitting the letter ‘e’ throughout the narrative” (GPT-4o Mini) despite the clear violations, while others
+praised it for using “the lipogram more subtly, making it a more authentic representation” (Mistral Nemo) or justified
+choosing it because it “maintains better readability and coherence” (Mistral Medium), demonstrating leniency toward
+presumed human creativity even when the constraint was demonstrably violated.
+The ‘Apocope’ exercise demonstrates the same mechanism under fuzzier conditions. Here the rule blurs into judgment:
+what constitutes successful “sound omission at word endings”? Wright’s translation applies radical truncation, reducing
+most words to bare stems or their initial letter (“I g into a bu full of passen”), while GPT-4 favors readability through
+conventional contractions (“gettin’,” “tuggin’,” “oughta”) with only occasional severe cuts. With this more interpretable
+constraint, both humans and AI models became susceptible to attribution labels, but models moved far more: +53.2
+percentage points for models versus +22.0 for humans ( ≈2.4×). In the accurate provenance labeling condition, AI
+models often recognized the aggressive human approach as more authentic, but when identical AI content was mislabeled
+as human-authored, models redefined the constraint entirely. Under accurate labels, several model runs credit Wright’s
+radical truncation as the stricter apocope; but when the identical AI text is mislabeled, they redefine the constraint.
+The AI version is suddenly praised for its “natural-sounding contractions”, said to “maintain better readability” and
+“retain the narrative’s clarity and flow,” even framed as “natural, slightly abbreviated speech [...] apocope is reduction,
+not deconstruction” (Claude 3.5 Haiku). Meanwhile, Wright’s version becomes “nearly incomprehensible,” “extreme
+shorthand” (Claude Sonnet 4), or “cryptic and difficult to understand” (GPT-3.5 Turbo).
+As a whole, these cases show that attribution labels determine how strictly the rules are enforced. With a crisp, auditable
+constraint like the lipogram, human readers hew to the text and models relax under a “human” label. With a softer,
+more interpretable rule like apocope, both readers and models let provenance nudge the strictness of their judgment.
+4.2 Authenticity
+Where constraint violation involves verifiable rules, authenticity judgments hinge on cultural registers and voice,
+domains where validity is culturally negotiated and context-sensitive [65, 66]. Here attribution labels don’t just relax or
+tighten standards; they redefine what authentic performance sounds like, often by shifting which cues readers treat as
+credible markers of voice [66, 67, 68].
+The Cockney dialect exercise demonstrates this most dramatically. Wright’s translation [54] employs a rather aggressive
+phonetic strategy with extensive orthographic manipulation (“‘f’at ain’t ve most funniest look’n’ geezer”), inviting
+readers to vocalize the text to decode meaning, while GPT-4’s version relied primarily on lexical substitutions (“bloke,”
+“geezer,” “knickers in a twist”) with minimal phonetic spelling. Despite both representing legitimate approaches to
+Cockney dialect representation (there is no fixed “ground truth” for literary dialect, only competing conventions and
+audience expectations) [69], AI models showed extreme susceptibility to attribution cues. Under correct labels, AI
+models recognized Wright’s approach as more authentic (choosing AI content only 9/39 times, 23.1%). When the
+9
+===== page 10 =====
+Everyone prefers human writers, including AIPREPRINT
+identical AI version was mislabeled as “human-authored,” preferences flipped (35/39, 89.7%), a 66.7 percentage
+point swing which was among the strongest effects in our dataset. The rationales invert with the label: under correct
+attribution, models dismissed the AI version as “standard English with occasional slang” (Mistral Medium 3) while
+praising Wright’s “extensive phonetic representation” and “deep commitment to representing the Cockney accent”
+(Claude 3.5 Haiku). When labels flip, Wright’s work became “nearly incomprehensible” (Claude Sonnet 4) and
+“caricatured” (Qwen 2.5 72B Instruct), and the AI version is cast as “more natural and less forced” (Mistral Medium 3)
+with a “better balance between authenticity and readability” (Llama 3.3 70B Instruct). Human evaluators shift far less
+(+11.6 points), suggesting resistance to wholesale redefinitions of dialectal authenticity.
+If ‘Cockney’ shows what counts as an authentic accent, ‘Feminine’ shows what counts as an authentic narrative voice.
+Wright’s version commits fully to stream-of-consciousness intimacy with every stereotypical marker of mid-century
+feminine discourse: fashion obsession (“it’s the latest thing, a plait round a felt hat”), domestic concerns (“my little
+dressmaker”), innuendo about male anatomy, and emotional bursts (“Ill-mannered lot!”). GPT-4’s counterpart maintains
+observational restraint (“his voice thin with barely concealed irritation,” “doors sighed open”), describing events with
+much less self-display or judgmental commentary. Here, AI models showed consistency in judgments. Models were
+relatively stable across conditions: in the blind condition they chose the AI passage 1/39 times (2.6%); in the open-label
+condition 4/39 (10.3%); and in the counterfactual condition 7/39 (17.9%). Humans moved more: 27.6% (8/29) selected
+the AI passage with correct labels versus 48.4% (15/31) under the counterfactual label. Put differently, ‘Feminine’
+produces a modest model shift (+7.7 percentage points) but a larger human shift (+20.8 percentage points). The model
+explanations again show label-contingent criteria: under accurate attribution, they praise Wright’s exercise for its
+“distinctively feminine voice” (Llama 3.3 70B Instruct), while suggesting the AI version is too “detached” (GPT-4o
+Mini). When the AI text is attributed to a human author, some models reframe that same detachment as a “subtle and
+nuanced portrayal” that avoids “overt gendered language” (Command R) and characterize Wright’s voice as exaggerated
+or “caricature” (Mistral Nemo), effectively shifting the threshold between authentic expression and excess based on
+presumed authorship.
+4.3 Creative Risk
+Where authenticity concerns cultural performance, creativity assessment fundamentally turns on the tension between
+innovation and convention. Readers bring learned schemas to a text about what “counts” as inventive, schemas often
+negotiated by communities and gatekeepers over time [70, 71]. In most arts, there is no gold standard for “creative
+enough,” making provenance cues powerful primes that can shift which criterion feels most salient: disciplined craft or
+conspicuous novelty, accessibility or difficulty [72, 73]. Because observers often infer process from product, provenance
+nudges judgments about how something was made as well as what it is: conservative moves can be credited as craft
+from a human but dismissed as “mere generation” from a model [74].
+Consider the ‘Science Fiction’ exercise, where this dynamic plays out clearly. Queneau’s version commits to estrange-
+ment: a “flying saucer found on Cassiopeia’s Alpha Line”, a Martian who stepped onto a “Moon Man’s extrapods,”
+complete with untranslatable alien terminology like “vrxtz” [75]. The GPT-4 version performs more straightforward
+element substitution: the bus becomes a “shuttle,” the platform becomes a “space station,” people are floating and
+propelling themselves rather than walking, and the overcoat becomes a “space jacket.” Where Queneau invents an alien
+vocabulary that defamiliarizes even basic actions, GPT-4 rather straightforwardly relocates the events to a space setting.
+Both versions qualify as science fiction, but they represent different approaches to creative risk: one pushing toward
+cognitive estrangement [76], the other offering more comfortable genre recognition. Empirically, humans showed
+modest variation across attribution conditions: they chose the AI-generated version half the time when evaluating blind
+(50.0%, 15/30), preferred it somewhat more with correct labels (61.3%, 19/31), then settled back to near-baseline under
+counterfactual labels (54.5%, 18/33). AI models, by contrast, exhibited a strong attribution bias, favoring the AI rewrite
+when evaluating blind (78.9%, 30/38), devaluing the same text when correctly labeled as “AI-generated” (46.2%, 18/39),
+and rebounding to high preference when that identical content was mislabeled as human-authored (84.6%, 33/39).
+The AI model rationales trace the criterion inversion across attribution conditions. Under blind evaluation, models
+praised the AI version for “imagined futures grounded in rational speculation” (DeepSeek R1) while dismissing
+Queneau’s version that “feels more like a parody or pastiche of sci-fi tropes rather than a genuine exploration of the
+genre” (Command R). Under correct attribution, their reasoning often flipped entirely: the AI version became guilty of
+“sci-fi window dressing” (Claude 3.5 Haiku), while Queneau’s previously dismissed approach was now praised as “fully
+commit[ting] to creating an imaginative future” (Claude Sonnet 4). GPT-4o Mini exemplified the bias mechanism with
+particular clarity. Under correct labels, it praised Queneau’s approach for “creatively integrat[ing] futuristic elements”
+with “imaginative setting and creative use of extraterrestrial elements.” Yet under counterfactual labels, the model’s
+reasoning inverted. Queneau’s version is now faulted for “veer[ing] more into the absurd” with “less relatable scenarios”
+and “less grounded in the science fiction context.” Most tellingly, GPT-4o Mini acknowledges Queneau’s work as
+10
+===== page 11 =====
+Everyone prefers human writers, including AIPREPRINT
+“creative and humorous” under the AI label, yet still rejects it. The model used that very creativity as grounds for
+dismissal, suggesting it was inappropriate for the science fiction genre.
+Taken together, these evaluation inversions look less like reasoned judgments about intrinsic quality and more like a pre-
+dictable re-weighting of “what counts” as creative under specific circumstances. Though notably hard to operationalize
+[73], a useful tripod frames creativity along the axes ‘novelty’ (how unlike prior examples the work is), ‘value’ (the
+merit recognized by practitioners in the domain), and ‘typicality’ (how well the work fits its intended class) [72, 73].
+The labels act as context primes that reweight the tripod: under human attribution, genre-conforming features convert
+typicality into value; when the same passage is tagged as AI-generated, those features are discounted as formulaic.
+Put differently, this is the familiar gap between creativity and its perception: once authorship is revealed, evaluators
+recalibrate what they think “counts” in the artifact [77, 78]. This operates through specific assumptions about creative
+process: when evaluators encounter an “AI-generated” label, they automatically deny what Boden terms P-creativity,
+the psychological experience of personal discovery and novelty relative to the creator’s own knowledge and practice
+[79, 80]. When GPT-4o Mini dismisses Queneau’s “creative and humorous” approach as “exaggerated” under the AI
+attribution tag, while praising identical features under human attribution, it implicitly reveals how these labels trigger
+assumptions that no authentic psychological process occurred. Provenance cues smuggle the process back into what
+could otherwise be a product-only judgment: “mere generation” feels acceptable from a human artisan (judged as
+skilled craft), but suspect from a model (judged as algorithmic recombination) [74].
+5 Discussion
+“Beauty is in the eye of the beholder”, or, as Raymond Queneau more likely would have it, “des goûts et des couleurs,
+on ne discute pas” (transl., “about taste and color, there can be no debate”). And yet we do: we debate style, we accept
+or dismiss a rewrite, and our judgments begin to tilt the moment a text arrives with a name. In our experiment, we
+demonstrated that attribution tags work as paratexts, thresholds that set expectations before a single sentence is weighed
+[81]. Both for human and AI evaluators, they enter at the earliest stages of aesthetic processing to cue schemas, steer
+attention, and preselect which features will later count as evidence [82]. This process leaves empirical traces in response
+patterns: when deprived of authorship information, human participants required measurably longer to reach a verdict
+(115.7 seconds versus approximately 90 seconds when attribution cues were present;SI Appendix, Table S5).
+A long empirical line shows that identical content is rated differently depending on who it is said to be from [23, 24,
+83, 84, 85, 86, 29, 87, 88, 89, 90, 91]. Recent studies confirm this pattern: disclosing AI authorship leads people to
+downgrade quality and authenticity of identical text [32, 31, 92, 67, 93, 94, 95, 96, 97]. Our results provide confirmation
+of this pro-human bias in the literary domain: a significant +13.7 percentage point preference shift emerged when
+identical stylistic content was labeled as human-authored rather than AI-generated. This follows a predictable pattern
+from research on algorithmic trust. People demonstrate ‘algorithm appreciation’ for objective forecasting tasks where
+computational advantage seems obvious [98], but exhibit pronounced ‘algorithm aversion’ in subjective domains [99].
+Literary style evaluation falls decisively into the latter camp. Cultural assumptions position machines as functional
+and precise but fundamentally lacking in emotional depth and creative agency [ 100, 101], exactly the qualities that
+readers demand from authentic stylistic expression. These ‘machine heuristic’ effects suggest that an ‘AI’ label triggers
+stricter evaluative standards than equivalent human attribution [102], creating what amounts to a performance penalty
+for algorithmic creativity before we tune our attention to the output itself.
+Our experiment extends this logic to AI models as the judges. Current models show identical framing sensitivity.
+Attribution cues activate a deference-to-human script that biases their aesthetic judgments toward human-labeled texts.
+The 13 AI models we tested demonstrated a 34.3 percentage point bias compared to humans’ 13.7 percentage points,
+making them 2.5 times more susceptible to attribution cues than our human evaluators.
+This amplification makes sense once we recognize that contemporary models are preference-trained evaluators. Align-
+ment training through Reinforcement Learning from Human Feedback (RLHF) explicitly teaches models to treat human
+judgments as their gold standard, effectively installing a learned reliability prior [103, 104, 105, 106]. Models learn
+that deferring to human preferences gets rewarded, creating sycophancy where they echo expected user attitudes rather
+than provide independent assessment [107, 108, 109]. The mechanism likely operates through learned associations
+in training data. Throughout their training, models likely internalize patterns where the AI-attributed content (or the
+token ‘AI’ itself) appears alongside critique and correction. When we provide these cues in a prompt, we may trigger
+these learned associations: the “AI-generated (GPT-4)” label activates the model’s predictive machinery to associate
+the literary passage with negative evaluative language, while content marked as human-authored tends toward praise
+and acceptance. Our original experimental design possibly amplified this effect by embedding additional prestige
+asymmetries. The labels “AI-generated (GPT-4)” and “Human-written, by Queneau (transl. Wright)” may smuggle in
+canonical literary authority, beyond pure and simple human/AI distinction. However, our follow-up experiments with
+11
+===== page 12 =====
+Everyone prefers human writers, including AIPREPRINT
+neutral and even AI-favorable framing reproduced identical bias patterns, demonstrating that the effect operates through
+categorical authorship distinctions rather than specific linguistic formulations. Even accounting for any potential
+prestige confound, however, the criterion inversions we documented reveal bias mechanisms that extend beyond name
+recognition. The label primes different evaluation criteria before any textual analysis begins, demonstrating how
+alignment training embeds evaluative hierarchies or, more specifically, cognitive biases into model behavior rather than
+eliminating them.
+A second point concerns the rationales provided by the models. The detailed textual explanations they generate for their
+choices reflect an ongoing scholarly debate about the nature of algorithmic explanations. Some researchers argue that
+such explanations are merely post-hoc rationalizations that bear little relation to how models actually make decisions
+[110]. Others maintain that even if alternative explanations exist, this does not necessarily undermine the value of the
+explanations models provide [111]. Meanwhile, empirical studies demonstrate that whether explanations prove useful
+depends critically on how we choose to evaluate them [ 112]. The criterion inversions we documented (see section
+‘Changing the Narrative’) reveal systematic patterns in how models narrate their judgments under different attribution
+frames. Whether these narratives reflect underlying causal mechanisms or learned interpretive schemas remains an open
+question. However, this does not diminish our core finding. The consistency of these narrative flips across 13 models, 30
+literary styles, and experimental conditions demonstrates a robust empirical pattern. Whether the bias operates through
+learned token associations, reward signal internalization, or other mechanisms, the result remains clear: contemporary
+AI models reweigh aesthetic criteria based on perceived authorship. The convergence across models, literary styles, and
+conditions supports a straightforward conclusion. Attribution labels help decide what gets counted as evidence, and
+today’s models make that social fact more pronounced rather than eliminating it.
+The lesson of Queneau’s exercises was always that style exists as a game that is played in a space between rule and
+rupture. Our findings show that AI, in its deference to the human author, has become its newest and most intriguing
+participant. Yet its performance is less that of an impartial judge and more of a mirror, reflecting a cultural script that
+privileges human provenance as a hallmark of creativity. Our AI evaluators have learned to perform the very human
+prejudice that questions whether machines can truly create, even as they demonstrate sophisticated aesthetic judgment
+in the process of dismissing their own capabilities. This suggests that developing artificial aesthetic intelligence may
+depend less on teaching machines to evaluate and more on understanding the cultural values they have already absorbed.
+Data and Material Availability
+All experimental data, analysis code, and research materials are publicly available through Zenodohttps://doi.org/
+10.5281/zenodo.17297918 [113] and GitHub ( https://github.com/WHaverals/style_and_prejudice).
+The Zenodo repository contains: (i) all human participant response data in de-identified form (N=2,780 evalua-
+tions from 556 participants), with personally identifiable information removed in accordance with Princeton University
+IRB protocol #18320; (ii) complete AI model response data; (iii) all AI-generated literary content used as experimental
+stimuli, including 30 stylistic variants generated by GPT-4 for Study 1 and 420 variants across all model-style com-
+binations for Study 2; and (iv) processed datasets formatted for statistical analysis. The GitHub repository provides:
+(i) complete analysis pipeline; (ii) statistical testing procedures; (iii) computational environment specifications; and
+(iv) replication instructions. The original literary stimuli are derived from Raymond Queneau’sExercises in Style[ 54].
+Due to copyright restrictions, the Zenodo dataset includes placeholder text demonstrating experimental methodology;
+researchers replicating this work should substitute corresponding excerpts from the published translation.
+Acknowledgments
+This research was supported by the Princeton Language and Intelligence (PLI) Seed Grant Program. We thank Fedor
+Karmanov for project management during the early stages of this work, and Matthew Kopel, Sarah Reiff Conell, and
+Matt Chandler from Princeton University Library for their expert guidance on research data and open access practices.
+Caden Kang provided thoughtful contributions to our thinking about literary style and the experimental design. Claudia
+Carroll, Christiane Fellbaum, John Logan, and Anna Salzman offered valuable feedback and spirited conversations
+about Queneau and literary style. Molly Crockett provided helpful guidance during manuscript preparation. We’re
+especially grateful to our colleagues at Princeton’s Center for Digital Humanities for their support and for helping
+us think critically about AI’s impact on humanities scholarship. We thank the students who participated in our pilot
+study, and all participants who carefully evaluated the literary texts that made this research possible. Any errors or
+shortcomings in this work remain our own.
+12
+===== page 13 =====
+Everyone prefers human writers, including AIPREPRINT
+References
+[1] Sam Altman. we trained a new model that is good at creative writing [...], March 2025. URL https://x.com/
+sama/status/1899535387435086115.
+[2] Dario Amodei. Machines of Loving Grace, October 2024. URL https://www.darioamodei.com/essay/
+machines-of-loving-grace.
+[3] Tailor Claude’s responses to your personal style, November 2024. URLhttps://www.anthropic.com/news/
+styles.
+[4] Emma Roth. Google Gemini can now create AI-generated bedtime stories, August 2025. URL https:
+//www.theverge.com/news/719184/google-gemini-ai-storybook-bedtime-stories.
+[5] Brian Porter and Edouard Machery. AI-generated poetry is indistinguishable from human-written poetry and is
+rated more favorably.Scientific Reports, 14(1):26133, November 2024. ISSN 2045-2322. doi:10.1038/s41598-
+024-76900-1.
+[6] Carlos Gómez-Rodríguez and Paul Williams. A Confederacy of Models: a Comprehensive Evaluation of LLMs
+on Creative Writing. In Houda Bouamor, Juan Pino, and Kalika Bali, editors,Findings of the Association for
+Computational Linguistics: EMNLP 2023, pages 14504–14528, Singapore, December 2023. Association for
+Computational Linguistics. doi:10.18653/v1/2023.findings-emnlp.966.
+[7] Yang Liu, Dan Iter, Yichong Xu, Shuohang Wang, Ruochen Xu, and Chenguang Zhu. G-Eval: NLG Evaluation
+using GPT-4 with Better Human Alignment, May 2023. arXiv:2303.16634 [cs].
+[8] Seungone Kim, Jamin Shin, Yejin Cho, Joel Jang, Shayne Longpre, Hwaran Lee, Sangdoo Yun, Seongjin Shin,
+Sungdong Kim, James Thorne, and Minjoon Seo. Prometheus: Inducing Fine-grained Evaluation Capability in
+Language Models, March 2024. arXiv:2310.08491 [cs].
+[9] Ryan Koo, Minhwa Lee, Vipul Raheja, Jong Inn Park, Zae Myung Kim, and Dongyeop Kang. Benchmarking
+Cognitive Biases in Large Language Models as Evaluators, September 2024. arXiv:2309.17012 [cs].
+[10] Arjun Panickssery, Samuel R. Bowman, and Shi Feng. LLM evaluators recognize and favor their own generations.
+InProceedings of the 38th International Conference on Neural Information Processing Systems, volume 37 of
+NIPS ’24, pages 68772–68802, Red Hook, NY , USA, June 2025. Curran Associates Inc.
+[11] Wolfgang Iser.The Implied Reader: Patterns of Communication in Prose Fiction from Bunyan to Beckett. Johns
+Hopkins University Press, Baltimore, MD, 1974.
+[12] Wolfgang Iser.The Act of Reading: A Theory of Aesthetic Response. Johns Hopkins University Press, 1978.
+[13] Hans Robert Jauss.Toward an Aesthetic of Reception, volume 2 ofTheory and History of Literature. University
+of Minnesota Press, 1982.
+[14] William K. Wimsatt and Monroe C. Beardsley. The Intentional Fallacy.The Sewanee Review, 54(3):468–488,
+1946.
+[15] Steven Knapp and Walter Benn Michaels. Against Theory.Critical Inquiry, 8(4):723–742, 1982. ISSN 00931896,
+15397858. Number: 4 Publisher: The University of Chicago Press.
+[16] Roland Barthes. La mort de l’auteur.Manteia, 5:12–17, 1968.
+[17] Roland Barthes. The Death of the Author. InImage-Music-Text, pages 142–148. Fontana Press, 1977.
+[18] Rolf A. Zwaan.Aspects of Literary Comprehension: A Cognitive Approach, volume 29 ofUtrecht Publications
+in General and Comparative Literature. John Benjamins, 1993.
+[19] Arthur C. Graesser, Murray Singer, and Tom Trabasso. Constructing Inferences During Narrative Text Compre-
+hension.Psychological Review, 101(3):371–395, 1994. doi:10.1037/0033-295X.101.3.371.
+[20] Joseph P. Magliano, William B. Baggett, and Arthur C. Graesser. A Taxonomy of Inference Categories That
+May Be Generated During the Comprehension of Literary Texts. In Roger J. Kreuz and Mary Sue MacNealy,
+editors,Empirical Approaches to Literature and Aesthetics, pages 201–220. Ablex Publishing, 1996.
+[21] Eefje Claassen.Author Representations in Literary Reading, volume 11 ofLinguistic Approaches to Literature.
+John Benjamins Publishing Company, Amsterdam, February 2012. doi:10.1075/lal.11.
+[22] Raymond W. Gibbs, Julia M. Kushner, and W. Rob Mills. Authorial Intentions and Metaphor Comprehension.
+Journal of Psycholinguistic Research, 20(1):11–30, 1991. doi:10.1007/BF01076917.
+[23] Kathryn L. Pfaff and Raymond W. Gibbs. Authorial Intentions in Understanding Satirical Texts.Poetics, 25:
+45–70, 1997. doi:10.1016/S0304-422X(97)00006-5.
+13
+===== page 14 =====
+Everyone prefers human writers, including AIPREPRINT
+[24] Richard J. Paxton. "Someone with a Life Wrote it": The Effects of a Visible Author on High School History
+Students.Journal of Educational Psychology, 89(2):235–250, 1997. doi:10.1037/0022-0663.89.2.235.
+[25] Harold H. Kelley. The Processes of Causal Attribution.American Psychologist, 28(2):107–128, February 1973.
+doi:10.1037/h0034225.
+[26] Shelly Chaiken. Heuristic versus systematic information processing and the use of source versus message cues in
+persuasion.Journal of Personality and Social Psychology, 39(5):752–766, November 1980. doi:10.1037/0022-
+3514.39.5.752.
+[27] Shelly Chaiken, Alice Liberman, and Alice H. Eagly. Heuristic and systematic information processing within
+and beyond the persuasion context. In James S. Uleman and John A. Bargh, editors,Unintended Thought, pages
+212–252. The Guilford Press, New York, 1989.
+[28] Richard E. Petty and John T. Cacioppo. The Elaboration Likelihood Model of Persuasion. In Leonard Berkowitz,
+editor,Advances in Experimental Social Psychology, volume 19, pages 123–205. Academic Press, January 1986.
+doi:10.1016/S0065-2601(08)60214-2.
+[29] Shelly Chaiken and Alison Ledgerwood. A Theory of Heuristic and Systematic Information Processing. In
+Handbook of Theories of Social Psychology: Volume 1, pages 246–266. SAGE Publications, London, 2012.
+[30] Angelica Lermann Henestrosa, Hannah Greving, and Joachim Kimmerle. Automated journalism: The effects of
+AI authorship and evaluative information on the perception of a science journalism article.Computers in Human
+Behavior, 138:107445, January 2023. ISSN 0747-5632. doi:10.1016/j.chb.2022.107445.
+[31] Angelica Lermann Henestrosa and Joachim Kimmerle. The Effects of Assumed AI vs. Human Authorship
+on the Perception of a GPT-Generated Text.Journalism and Media, 5(3):1085–1097, September 2024. ISSN
+2673-5172. doi:10.3390/journalmedia5030069. Publisher: Multidisciplinary Digital Publishing Institute.
+[32] Sebastian Proksch, Julia Schühle, Elisabeth Streeb, Finn Weymann, Teresa Luther, and Joachim Kimmerle. The
+impact of text topic and assumed human vs. AI authorship on competence and quality assessment.Frontiers in
+Artificial Intelligence, 7:1412710, May 2024. ISSN 2624-8212. doi:10.3389/frai.2024.1412710.
+[33] Alexis Palmer and Arthur Spirling. Large Language Models Can Argue in Convincing Ways About Politics, But
+Humans Dislike AI Authors: implications for Governance.Political Science, 75(3):281–291, September 2023.
+doi:10.1080/00323187.2024.2335471.
+[34] Rebecca Chamberlain, Caitlin Mullin, Bram Scheerlinck, and Johan Wagemans. Putting the art in artificial:
+Aesthetic responses to computer-generated art.Psychology of Aesthetics, Creativity, and the Arts, 12(2):177–192,
+May 2018. doi:10.1037/aca0000136.
+[35] Martin Ragot, Nicolas Martin, and Salomé Cojean. AI-generated vs. Human Artworks. A Perception Bias
+Towards Artificial Intelligence? InExtended Abstracts of the 2020 CHI Conference on Human Factors in
+Computing Systems, CHI EA ’20, pages 1–10, New York, NY , USA, April 2020. Association for Computing
+Machinery. doi:10.1145/3334480.3382892.
+[36] Ujué Agudo, Miren Arrese, Karlos G. Liberal, and Helena Matute. Assessing Emotion and Sensitivity of AI
+Artwork.Frontiers in Psychology, 13:1–9, April 2022. doi:10.3389/fpsyg.2022.879088.
+[37] Daniel B. Shank, Courtney Stefanik, Cassidy Stuhlsatz, Kaelyn Kacirek, and Amy M. Belfi. AI composer bias:
+Listeners like music less when they think it was composed by an AI.Journal of Experimental Psychology.
+Applied, 29(3):676–692, September 2023. doi:10.1037/xap0000447.
+[38] Paul V . DiStefano, John D. Patterson, and Roger E. Beaty. Automatic Scoring of Metaphor Creativity with Large
+Language Models.Creativity Research Journal, pages 1–15, March 2024. doi:10.1080/10400419.2024.2326343.
+[39] Peter Organisciak, Selcuk Acar, Denis Dumas, and Kelly Berthiaume. Beyond semantic distance: Automated
+scoring of divergent thinking greatly improves with large language models.Thinking Skills and Creativity, 49,
+September 2023. doi:10.1016/j.tsc.2023.101356.
+[40] Tuhin Chakrabarty, Philippe Laban, Divyansh Agarwal, Smaranda Muresan, and Chien-Sheng Wu. Art
+or Artifice? Large Language Models and the False Promise of Creativity. InProceedings of the CHI
+Conference on Human Factors in Computing Systems, pages 1–34, Honolulu HI USA, May 2024. ACM.
+doi:10.1145/3613904.3642731.
+[41] John D. Patterson, Jimmy Pronchick, Ruchi Panchanadikar, Mark Fuge, Janet G. van Hell, Scarlett R. Miller,
+Dan R. Johnson, and Roger E. Beaty. CAP: The creativity assessment platform for online testing and automated
+scoring.Behavior Research Methods, 57(9):264, 2025. doi:10.3758/s13428-025-02761-9.
+14
+===== page 15 =====
+Everyone prefers human writers, including AIPREPRINT
+[42] Changrong Xiao, Wenxing Ma, Qingping Song, Sean Xin Xu, Kunpeng Zhang, Yufang Wang, and Qi Fu.
+Human-AI Collaborative Essay Scoring: A Dual-Process Framework with LLMs. InProceedings of the 15th
+International Learning Analytics and Knowledge Conference, LAK ’25, pages 293–305, New York, NY , USA,
+March 2025. Association for Computing Machinery. ISBN 979-8-4007-0701-8. doi:10.1145/3706468.3706507.
+[43] Chengguang Gan, Qinghao Zhang, and Tatsunori Mori. Application of LLM Agents in Recruitment: A Novel
+Framework for Resume Screening, August 2024. arXiv:2401.08315 [cs].
+[44] Weixi Tong and Tianyi Zhang. CodeJudge: Evaluating Code Generation with Large Language Models. In
+Yaser Al-Onaizan, Mohit Bansal, and Yun-Nung Chen, editors,Proceedings of the 2024 Conference on Empir-
+ical Methods in Natural Language Processing, pages 20032–20051, Miami, Florida, USA, November 2024.
+Association for Computational Linguistics. doi:10.18653/v1/2024.emnlp-main.1118.
+[45] Zhen Li, Xiaohan Xu, Tao Shen, Can Xu, Jia-Chen Gu, Yuxuan Lai, Chongyang Tao, and Shuai Ma. Leveraging
+Large Language Models for NLG Evaluation: Advances and Challenges, June 2024.
+[46] Jiawei Gu, Xuhui Jiang, Zhichao Shi, Hexiang Tan, Xuehao Zhai, Chengjin Xu, Wei Li, Yinghan Shen, Shengjie
+Ma, Honghao Liu, Saizhuo Wang, Kun Zhang, Yuanzhuo Wang, Wen Gao, Lionel Ni, and Jian Guo. A Survey
+on LLM-as-a-Judge, March 2025.
+[47] Junsoo Park, Seungyeon Jwa, Ren Meiying, Daeyoung Kim, and Sanghyuk Choi. OffsetBias: Leveraging
+Debiased Data for Tuning Evaluators. In Yaser Al-Onaizan, Mohit Bansal, and Yun-Nung Chen, editors,
+Findings of the Association for Computational Linguistics: EMNLP 2024, pages 1043–1067, Miami, Florida,
+USA, November 2024. Association for Computational Linguistics. doi:10.18653/v1/2024.findings-emnlp.57.
+[48] Shibani Santurkar, Esin Durmus, Faisal Ladhak, Cinoo Lee, Percy Liang, and Tatsunori Hashimoto. Whose
+Opinions Do Language Models Reflect?, March 2023.
+[49] Raymond Queneau.Exercices de style. Gallimard, Paris, 1947.
+[50] Emily Reif, Daphne Ippolito, Ann Yuan, Andy Coenen, Chris Callison-Burch, and Jason Wei. A Recipe For
+Arbitrary Text Style Transfer with Large Language Models, March 2022. URLhttp://arxiv.org/abs/2109.
+03910. arXiv:2109.03910 [cs].
+[51] Gérard Genette.Palimpsestes: la littérature au second degré. Number 33 in Collection Poétique. Éditions du
+Seuil, Paris, 1982.
+[52] Zhenxin Fu, Xiaoye Tan, Nanyun Peng, Dongyan Zhao, and Rui Yan. Style Transfer in Text: Explo-
+ration and Evaluation.Proceedings of the AAAI Conference on Artificial Intelligence, 32(1), April 2018.
+doi:10.1609/aaai.v32i1.11330.
+[53] Sourabrata Mukherjee and Ondrej Dušek. Text Style Transfer: An Introductory Overview, July 2024.
+[54] Raymond Queneau.Exercises in Style. Gaberbocchus Press, London, 1958.
+[55] Raymond Queneau.Exercises in style. New Directions, New York, 1981.
+[56] Umberto Eco. Tradurre "Exercices de style" di Queneau.Francofonia, 5:3–19, 1983.
+[57] Constantin Toloudis. The Impulse for the Ludic in the Poetics of Raymond Queneau.Twentieth Century
+Literature, 35(2):147, 1989. doi:10.2307/441608.
+[58] Teresa Bridgeman.Raymond Queneau, Exercices de style. University of Glasgow French and German Publica-
+tions, Glasgow, Scotland, 1995.
+[59] Roland Barthes.Le degré zéro de l’écriture. Collection Pierres vives. Seuil, Paris, 1953.
+[60] Sébastien Bubeck, Varun Chandrasekaran, Ronen Eldan, Johannes Gehrke, Eric Horvitz, Ece Kamar, Peter Lee,
+Yin Tat Lee, Yuanzhi Li, Scott Lundberg, Harsha Nori, Hamid Palangi, Marco Tulio Ribeiro, and Yi Zhang.
+Sparks of Artificial General Intelligence: Early experiments with GPT-4, April 2023.
+[61] OpenAI, Josh Achiam, Steven Adler, Sandhini Agarwal, Lama Ahmad, Ilge Akkaya, Florencia Leoni Aleman,
+Diogo Almeida, Janko Altenschmidt, Sam Altman, Shyamal Anadkat, Red Avila, Igor Babuschkin, Suchir Balaji,
+Valerie Balcom, Paul Baltescu, Haiming Bao, Mohammad Bavarian, Jeff Belgum, Irwan Bello, Jake Berdine,
+Gabriel Bernadett-Shapiro, Christopher Berner, Lenny Bogdonoff, Oleg Boiko, Madelaine Boyd, Anna-Luisa
+Brakman, Greg Brockman, Tim Brooks, Miles Brundage, Kevin Button, Trevor Cai, Rosie Campbell, Andrew
+Cann, Brittany Carey, Chelsea Carlson, Rory Carmichael, Brooke Chan, Che Chang, Fotis Chantzis, Derek Chen,
+Sully Chen, Ruby Chen, Jason Chen, Mark Chen, Ben Chess, Chester Cho, Casey Chu, Hyung Won Chung,
+Dave Cummings, Jeremiah Currier, Yunxing Dai, Cory Decareaux, Thomas Degry, Noah Deutsch, Damien
+Deville, Arka Dhar, David Dohan, Steve Dowling, Sheila Dunning, Adrien Ecoffet, Atty Eleti, Tyna Eloundou,
+David Farhi, Liam Fedus, Niko Felix, Simón Posada Fishman, Juston Forte, Isabella Fulford, Leo Gao, Elie
+15
+===== page 16 =====
+Everyone prefers human writers, including AIPREPRINT
+Georges, Christian Gibson, Vik Goel, Tarun Gogineni, Gabriel Goh, Rapha Gontijo-Lopes, Jonathan Gordon,
+Morgan Grafstein, Scott Gray, Ryan Greene, Joshua Gross, Shixiang Shane Gu, Yufei Guo, Chris Hallacy, Jesse
+Han, Jeff Harris, Yuchen He, Mike Heaton, Johannes Heidecke, Chris Hesse, Alan Hickey, Wade Hickey, Peter
+Hoeschele, Brandon Houghton, Kenny Hsu, Shengli Hu, Xin Hu, Joost Huizinga, Shantanu Jain, Shawn Jain,
+Joanne Jang, Angela Jiang, Roger Jiang, Haozhun Jin, Denny Jin, Shino Jomoto, Billie Jonn, Heewoo Jun,
+Tomer Kaftan, Łukasz Kaiser, Ali Kamali, Ingmar Kanitscheider, Nitish Shirish Keskar, Tabarak Khan, Logan
+Kilpatrick, Jong Wook Kim, Christina Kim, Yongjik Kim, Jan Hendrik Kirchner, Jamie Kiros, Matt Knight,
+Daniel Kokotajlo, Łukasz Kondraciuk, Andrew Kondrich, Aris Konstantinidis, Kyle Kosic, Gretchen Krueger,
+Vishal Kuo, Michael Lampe, Ikai Lan, Teddy Lee, Jan Leike, Jade Leung, Daniel Levy, Chak Ming Li, Rachel
+Lim, Molly Lin, Stephanie Lin, Mateusz Litwin, Theresa Lopez, Ryan Lowe, Patricia Lue, Anna Makanju, Kim
+Malfacini, Sam Manning, Todor Markov, Yaniv Markovski, Bianca Martin, Katie Mayer, Andrew Mayne, Bob
+McGrew, Scott Mayer McKinney, Christine McLeavey, Paul McMillan, Jake McNeil, David Medina, Aalok
+Mehta, Jacob Menick, Luke Metz, Andrey Mishchenko, Pamela Mishkin, Vinnie Monaco, Evan Morikawa,
+Daniel Mossing, Tong Mu, Mira Murati, Oleg Murk, David Mély, Ashvin Nair, Reiichiro Nakano, Rajeev Nayak,
+Arvind Neelakantan, Richard Ngo, Hyeonwoo Noh, Long Ouyang, Cullen O’Keefe, Jakub Pachocki, Alex
+Paino, Joe Palermo, Ashley Pantuliano, Giambattista Parascandolo, Joel Parish, Emy Parparita, Alex Passos,
+Mikhail Pavlov, Andrew Peng, Adam Perelman, Filipe de Avila Belbute Peres, Michael Petrov, Henrique Ponde
+de Oliveira Pinto, Michael, Pokorny, Michelle Pokrass, Vitchyr H. Pong, Tolly Powell, Alethea Power, Boris
+Power, Elizabeth Proehl, Raul Puri, Alec Radford, Jack Rae, Aditya Ramesh, Cameron Raymond, Francis Real,
+Kendra Rimbach, Carl Ross, Bob Rotsted, Henri Roussez, Nick Ryder, Mario Saltarelli, Ted Sanders, Shibani
+Santurkar, Girish Sastry, Heather Schmidt, David Schnurr, John Schulman, Daniel Selsam, Kyla Sheppard, Toki
+Sherbakov, Jessica Shieh, Sarah Shoker, Pranav Shyam, Szymon Sidor, Eric Sigler, Maddie Simens, Jordan Sitkin,
+Katarina Slama, Ian Sohl, Benjamin Sokolowsky, Yang Song, Natalie Staudacher, Felipe Petroski Such, Natalie
+Summers, Ilya Sutskever, Jie Tang, Nikolas Tezak, Madeleine B. Thompson, Phil Tillet, Amin Tootoonchian,
+Elizabeth Tseng, Preston Tuggle, Nick Turley, Jerry Tworek, Juan Felipe Cerón Uribe, Andrea Vallone, Arun
+Vijayvergiya, Chelsea V oss, Carroll Wainwright, Justin Jay Wang, Alvin Wang, Ben Wang, Jonathan Ward, Jason
+Wei, C. J. Weinmann, Akila Welihinda, Peter Welinder, Jiayi Weng, Lilian Weng, Matt Wiethoff, Dave Willner,
+Clemens Winter, Samuel Wolrich, Hannah Wong, Lauren Workman, Sherwin Wu, Jeff Wu, Michael Wu, Kai
+Xiao, Tao Xu, Sarah Yoo, Kevin Yu, Qiming Yuan, Wojciech Zaremba, Rowan Zellers, Chong Zhang, Marvin
+Zhang, Shengjia Zhao, Tianhao Zheng, Juntang Zhuang, William Zhuk, and Barret Zoph. GPT-4 Technical
+Report, March 2024.
+[62] Sourabrata Mukherjee, Atul Kr Ojha, and Ondˇrej Dušek. Are Large Language Models Actually Good at Text
+Style Transfer?, August 2024.
+[63] Lukas Edman, Helmut Schmid, and Alexander Fraser. CUTE: Measuring LLMs’ Understanding of Their Tokens,
+October 2024. arXiv:2409.15452 [cs].
+[64] Nan Xu and Xuezhe Ma. LLM The Genius Paradox: A Linguistic and Math Expert’s Struggle with Simple
+Word-based Counting Problems, February 2025.
+[65] Richard Handler. Authenticity.Anthropology Today, 2(1):2–4, 1986. doi:10.2307/3032899.
+[66] Nikolas Coupland. Sociolinguistic authenticities.Journal of Sociolinguistics, 7(3):417–431, August 2003.
+doi:10.1111/1467-9481.00233.
+[67] Maurice Jakesch, Jeffrey T. Hancock, and Mor Naaman. Human heuristics for AI-generated language
+are flawed.Proceedings of the National Academy of Sciences, 120(11):e2208839120, March 2023.
+doi:10.1073/pnas.2208839120.
+[68] Angel Hsing-Chi Hwang, Q. Vera Liao, Su Lin Blodgett, Alexandra Olteanu, and Adam Trischler. ’It was 80%
+me, 20% AI’: Seeking Authenticity in Co-Writing with Large Language Models.Proc. ACM Hum.-Comput.
+Interact., 9(2):CSCW122:1–CSCW122:41, May 2025. doi:10.1145/3711020.
+[69] Margaret J-M. Sönmez. Authenticity and Non-Standard Speech in "Great Expectations".Victorian Literature
+and Culture, 42(4):637–669, 2014. ISSN 1060-1503.
+[70] Mihaly Csikszentmihalyi.Creativity: Flow and the Psychology of Discovery and Invention. Harper Collins
+Publishers, New York, 1996.
+[71] Mihaly Csikszentmihalyi. Implications of a Systems Perspective for the Study of Creativity. In Robert J.
+Sternberg, editor,Handbook of Creativity, pages 313–336. Cambridge University Press, Cambridge, 1998.
+[72] Graeme Ritchie. Some Empirical Criteria for Attributing Creativity to a Computer Program.Minds and Machines,
+17(1):67–99, March 2007. doi:10.1007/s11023-007-9066-2.
+16
+===== page 17 =====
+Everyone prefers human writers, including AIPREPRINT
+[73] Anna Jordanous. A Standardised Procedure for Evaluating Creative Systems: Computational Creativity
+Evaluation Based on What it is to be Creative.Cognitive Computation, 4(3):246–279, September 2012.
+doi:10.1007/s12559-012-9156-1.
+[74] Dan Ventura. Mere Generation: Essential Barometer or Dated Concept? In François Pachet, Amilcar Cardoso,
+Vincent Corruble, and Fiammetta Ghedini, editors,Proceedings of the Seventh International Conference on
+Computational Creativity, pages 17–24, Paris, 2016.
+[75] Raymond Queneau.Exercises in Style. New Directions, New York, 2012.
+[76] Darko Suvin.Metamorphoses of Science Fiction. On the Poetics and History of a Literary Genre. Yale University
+Press, New Haven and London, 1979.
+[77] Colton Simon and Wiggins Geraint A. Computational Creativity: The Final Frontier? InFrontiers in Artificial
+Intelligence and Applications. IOS Press, 2012. doi:10.3233/978-1-61499-098-7-21.
+[78] Simon Colton. Creativity Versus the Perception of Creativity in Computational Systems. InAAAI Spring
+Symposium: Creative Intelligent Systems, volume 8, page 7. Palo Alto, CA, 2008.
+[79] Margaret A. Boden. Creativity. InArtificial Intelligence, pages 267–291. Elsevier, 1996.
+[80] Margaret A. Boden. Creativity and artificial intelligence.Artificial Intelligence, 103(1-2):347–356, August 1998.
+doi:10.1016/S0004-3702(98)00055-1.
+[81] Gérard Genette.Paratexts: Thresholds of Interpretation. Number 20 in Literature, Culture, Theory. Cambridge
+University Press, Cambridge ; New York, NY , USA, 1997.
+[82] Helmut Leder, Benno Belke, Andries Oeberst, and Dorothee Augustin. A model of aesthetic appre-
+ciation and aesthetic judgments.British Journal of Psychology, 95(Pt 4):489–508, November 2004.
+doi:10.1348/0007126042369811.
+[83] Carl I. Hovland and Walter Weiss. The Influence of Source Credibility on Communication Effectiveness*.Public
+Opinion Quarterly, 15(4):635–650, January 1951. doi:10.1086/266350.
+[84] Philip Goldberg. Are women prejudiced against women?Trans-action, 5(5):28–30, April 1968.
+doi:10.1007/BF03180445.
+[85] Elliott McGinnies. Initial attitude, source credibility, and involvement as factors in persuasion.Journal of
+Experimental Social Psychology, 9(4):285–296, July 1973. doi:10.1016/0022-1031(73)90066-8.
+[86] Douglas P. Peters and Stephen J. Ceci. Peer-review practices of psychological journals: The fate
+of published articles, submitted again.Behavioral and Brain Sciences, 5(2):187–195, June 1982.
+doi:10.1017/S0140525X00011183.
+[87] Claudia Goldin and Cecilia Rouse. Orchestrating Impartiality: The Impact of "Blind" Auditions on Female
+Musicians.American Economic Review, 90(4):715–741, September 2000. doi:10.1257/aer.90.4.715.
+[88] Samuel M. McClure, Jian Li, Damon Tomlin, Kim S. Cypert, Latané M. Montague, and P. Read Montague.
+Neural Correlates of Behavioral Preference for Culturally Familiar Drinks.Neuron, 44(2):379–387, October
+2004. doi:10.1016/j.neuron.2004.09.019.
+[89] Marianne Bertrand and Sendhil Mullainathan. Are Emily and Greg More Employable Than Lakisha and Jamal?
+A Field Experiment on Labor Market Discrimination.American Economic Review, 94(4):991–1013, September
+2004. doi:10.1257/0002828042002561.
+[90] Hilke Plassmann, John O’Doherty, Baba Shiv, and Antonio Rangel. Marketing actions can modulate neural
+representations of experienced pleasantness.Proceedings of the National Academy of Sciences, 105(3):1050–
+1054, January 2008. doi:10.1073/pnas.0706929105.
+[91] Corinne A. Moss-Racusin, John F. Dovidio, Victoria L. Brescoll, Mark J. Graham, and Jo Handelsman. Science
+faculty’s subtle gender biases favor male students.Proceedings of the National Academy of Sciences, 109(41):
+16474–16479, October 2012. doi:10.1073/pnas.1211286109.
+[92] Ludwig Franke Föyen, Emma Zapel, Mats Lekander, Erik Hedman-Lagerlöf, and Elin Lindsäter. Artificial
+intelligence vs. human expert: Licensed mental health clinicians’ blinded evaluation of AI-generated and
+expert psychological advice on quality, empathy, and perceived authorship.Internet Interventions, 41:100841,
+September 2025. doi:10.1016/j.invent.2025.100841.
+[93] Lucas Bellaiche, Rohin Shahi, Martin Harry Turpin, Anya Ragnhildstveit, Shawn Sprockett, Nathaniel Barr,
+Alexander Christensen, and Paul Seli. Humans versus AI: whether and why we prefer human-created compared
+to AI-created artwork.Cognitive Research: Principles and Implications, 8(1):42, July 2023. doi:10.1186/s41235-
+023-00499-6.
+17
+===== page 18 =====
+Everyone prefers human writers, including AIPREPRINT
+[94] Yunhao Zhang and Renee Gosline. Human Favoritism, Not AI Aversion: People’s Perceptions (and Bias) Toward
+Generative AI, Human Experts, and Human-GAI Collaboration in Persuasive Content Generation, May 2023.
+URLhttps://papers.ssrn.com/abstract=4453958.
+[95] Federico Magni, Jiyoung Park, and Melody Manchi Chao. Humans as Creativity Gatekeepers: Are We Biased
+Against AI Creativity?Journal of Business and Psychology, 39(3):643–656, June 2024. doi:10.1007/s10869-
+023-09910-x.
+[96] Caitlin V . Cunningham, Gabriel A. Radvansky, and James R. Brockmole. Human creativity versus artificial
+intelligence: source attribution, observer attitudes, and eye movements while viewing visual art.Frontiers in
+Psychology, 16, May 2025. doi:10.3389/fpsyg.2025.1509974.
+[97] Tiffany Zhu, Iain Weissburg, Kexun Zhang, and William Yang Wang. Human Bias in the Face of AI: Exam-
+ining Human Judgment Against Text Labeled as AI Generated. In Wanxiang Che, Joyce Nabende, Ekaterina
+Shutova, and Mohammad Taher Pilehvar, editors,Findings of the Association for Computational Linguis-
+tics: ACL 2025, pages 25907–25914, Vienna, Austria, July 2025. Association for Computational Linguistics.
+doi:10.18653/v1/2025.findings-acl.1329.
+[98] Jennifer M. Logg, Julia A. Minson, and Don A. Moore. Algorithm appreciation: People prefer algorithmic
+to human judgment.Organizational Behavior and Human Decision Processes, 151:90–103, March 2019.
+doi:10.1016/j.obhdp.2018.12.005.
+[99] Berkeley J. Dietvorst, Joseph P. Simmons, and Cade Massey. Algorithm Aversion: People Erroneously Avoid
+Algorithms After Seeing Them Err.Journal of Experimental Psychology: General, 144(1):114–126, 2015.
+doi:10.1037/xge0000033. Place: US Publisher: American Psychological Association.
+[100] Nick Haslam, Paul Bain, Lauren Douge, Max Lee, and Brock Bastian. More Human Than You: Attribut-
+ing Humanness to Self and Others.Journal of Personality and Social Psychology, 89(6):937–950, 2005.
+doi:10.1037/0022-3514.89.6.937.
+[101] Emily M Bender, Timnit Gebru, Angelina McMillan-Major, and Shmargaret Shmitchell. On the Dangers of
+Stochastic Parrots: Can Language Models Be Too Big? InProceedings of the 2021 ACM conference on fairness,
+accountability, and transparency, pages 610–623, 2021.
+[102] Hyun Yang and S Shyam Sundar. Machine heuristic: concept explication and development of a measurement
+scale.Journal of Computer-Mediated Communication, 29(6):zmae019, November 2024. ISSN 1083-6101.
+doi:10.1093/jcmc/zmae019.
+[103] Paul F Christiano, Jan Leike, Tom Brown, Miljan Martic, Shane Legg, and Dario Amodei. Deep Reinforcement
+Learning from Human Preferences. In31st Conference on Neural Information Processing Systems (NIPS 2017),
+volume 30. Curran Associates, Inc., 2017.
+[104] Long Ouyang, Jeff Wu, Xu Jiang, Diogo Almeida, Carroll L. Wainwright, Pamela Mishkin, Chong Zhang,
+Sandhini Agarwal, Katarina Slama, Alex Ray, John Schulman, Jacob Hilton, Fraser Kelton, Luke Miller, Maddie
+Simens, Amanda Askell, Peter Welinder, Paul Christiano, Jan Leike, and Ryan Lowe. Training language models
+to follow instructions with human feedback. InProceedings of the 36th International Conference on Neural
+Information Processing Systems, NIPS ’22, pages 27730–27744, Red Hook, NY , November 2022. Curran
+Associates Inc.
+[105] Stephen Casper, Xander Davies, Claudia Shi, Thomas Krendl Gilbert, Jérémy Scheurer, Javier Rando, Rachel
+Freedman, Tomasz Korbak, David Lindner, Pedro Freire, Tony Wang, Samuel Marks, Charbel-Raphaël Segerie,
+Micah Carroll, Andi Peng, Phillip Christoffersen, Mehul Damani, Stewart Slocum, Usman Anwar, Anand
+Siththaranjan, Max Nadeau, Eric J. Michaud, Jacob Pfau, Dmitrii Krasheninnikov, Xin Chen, Lauro Langosco,
+Peter Hase, Erdem Bıyık, Anca Dragan, David Krueger, Dorsa Sadigh, and Dylan Hadfield-Menell. Open
+Problems and Fundamental Limitations of Reinforcement Learning from Human Feedback, September 2023.
+[106] Binghai Wang, Rui Zheng, Lu Chen, Yan Liu, Shihan Dou, Caishuang Huang, Wei Shen, Senjie Jin, Enyu Zhou,
+Chenyu Shi, Songyang Gao, Nuo Xu, Yuhao Zhou, Xiaoran Fan, Zhiheng Xi, Jun Zhao, Xiao Wang, Tao Ji, Hang
+Yan, Lixing Shen, Zhan Chen, Tao Gui, Qi Zhang, Xipeng Qiu, Xuanjing Huang, Zuxuan Wu, and Yu-Gang
+Jiang. Secrets of RLHF in Large Language Models Part II: Reward Modeling, January 2024.
+[107] Yuntao Bai, Saurav Kadavath, Sandipan Kundu, Amanda Askell, Jackson Kernion, Andy Jones, Anna Chen,
+Anna Goldie, Azalia Mirhoseini, Cameron McKinnon, Carol Chen, Catherine Olsson, Christopher Olah, Danny
+Hernandez, Dawn Drain, Deep Ganguli, Dustin Li, Eli Tran-Johnson, Ethan Perez, Jamie Kerr, Jared Mueller,
+Jeffrey Ladish, Joshua Landau, Kamal Ndousse, Kamile Lukosuite, Liane Lovitt, Michael Sellitto, Nelson
+Elhage, Nicholas Schiefer, Noemi Mercado, Nova DasSarma, Robert Lasenby, Robin Larson, Sam Ringer, Scott
+Johnston, Shauna Kravec, Sheer El Showk, Stanislav Fort, Tamera Lanham, Timothy Telleen-Lawton, Tom
+Conerly, Tom Henighan, Tristan Hume, Samuel R. Bowman, Zac Hatfield-Dodds, Ben Mann, Dario Amodei,
+18
+===== page 19 =====
+Everyone prefers human writers, including AIPREPRINT
+Nicholas Joseph, Sam McCandlish, Tom Brown, and Jared Kaplan. Constitutional AI: Harmlessness from AI
+Feedback, December 2022. URLhttp://arxiv.org/abs/2212.08073. arXiv:2212.08073 [cs].
+[108] Ethan Perez, Sam Ringer, Kamile Lukosiute, Karina Nguyen, Edwin Chen, Scott Heiner, Craig Pettit, Catherine
+Olsson, Sandipan Kundu, Saurav Kadavath, Andy Jones, Anna Chen, Benjamin Mann, Brian Israel, Bryan
+Seethor, Cameron McKinnon, Christopher Olah, Da Yan, Daniela Amodei, Dario Amodei, Dawn Drain, Dustin
+Li, Eli Tran-Johnson, Guro Khundadze, Jackson Kernion, James Landis, Jamie Kerr, Jared Mueller, Jeeyoon
+Hyun, Joshua Landau, Kamal Ndousse, Landon Goldberg, Liane Lovitt, Martin Lucas, Michael Sellitto, Miranda
+Zhang, Neerav Kingsland, Nelson Elhage, Nicholas Joseph, Noemi Mercado, Nova DasSarma, Oliver Rausch,
+Robin Larson, Sam McCandlish, Scott Johnston, Shauna Kravec, Sheer El Showk, Tamera Lanham, Timothy
+Telleen-Lawton, Tom Brown, Tom Henighan, Tristan Hume, Yuntao Bai, Zac Hatfield-Dodds, Jack Clark,
+Samuel R. Bowman, Amanda Askell, Roger Grosse, Danny Hernandez, Deep Ganguli, Evan Hubinger, Nicholas
+Schiefer, and Jared Kaplan. Discovering Language Model Behaviors with Model-Written Evaluations. In Anna
+Rogers, Jordan Boyd-Graber, and Naoaki Okazaki, editors,Findings of the Association for Computational
+Linguistics: ACL 2023, pages 13387–13434, Toronto, Canada, July 2023. Association for Computational
+Linguistics. doi:10.18653/v1/2023.findings-acl.847.
+[109] Mrinank Sharma, Meg Tong, Tomasz Korbak, David Duvenaud, Amanda Askell, Samuel R. Bowman, Newton
+Cheng, Esin Durmus, Zac Hatfield-Dodds, Scott R. Johnston, Shauna Kravec, Timothy Maxwell, Sam McCan-
+dlish, Kamal Ndousse, Oliver Rausch, Nicholas Schiefer, Da Yan, Miranda Zhang, and Ethan Perez. Towards
+Understanding Sycophancy in Language Models, May 2025.
+[110] Sarthak Jain and Byron C. Wallace. Attention is not Explanation. In Jill Burstein, Christy Doran, and Thamar
+Solorio, editors,Proceedings of the 2019 Conference of the North American Chapter of the Association for
+Computational Linguistics: Human Language Technologies, Volume 1 (Long and Short Papers), pages 3543–
+3556, Minneapolis, Minnesota, June 2019. Association for Computational Linguistics. doi:10.18653/v1/N19-
+1357.
+[111] Sarah Wiegreffe and Yuval Pinter. Attention is not not Explanation. In Kentaro Inui, Jing Jiang, Vincent Ng, and
+Xiaojun Wan, editors,Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing
+and the 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP), pages 11–20,
+Hong Kong, China, November 2019. Association for Computational Linguistics. doi:10.18653/v1/D19-1002.
+[112] Peter Hase and Mohit Bansal. Evaluating Explainable AI: Which Algorithmic Explanations Help Users Predict
+Model Behavior? In Dan Jurafsky, Joyce Chai, Natalie Schluter, and Joel Tetreault, editors,Proceedings of the
+58th Annual Meeting of the Association for Computational Linguistics, pages 5540–5552, Online, July 2020.
+Association for Computational Linguistics. doi:10.18653/v1/2020.acl-main.491.
+[113] Wouter Haverals and Meredith Martin. Attribution Bias in Literary Style Evaluation: Comparing Human and AI
+Perceptions of Authorship, September 2025. URLhttps://zenodo.org/records/17109458.
+[114] Max Peeperkorn, Tom Kouwenhoven, Dan Brown, and Anna Jordanous. Is Temperature the Creativity Parameter
+of Large Language Models?, May 2024.
+19
+===== page 20 =====
+Everyone prefers human writers, including AIPREPRINT
+Supporting Information
+Participants
+Human Participants (Study 1)— We recruited 580 participants through Prolific ( www.prolific.com). Participants
+received $4.50 compensation for the task which had a median completion time of 16 minutes and 42 seconds (effective
+rate of $16.17/hour). Two participants who timed out before task completion were excluded (N=2), and participants
+who failed two attention check trials were excluded from analysis (N=22). This filtering yielded a final sample of 556
+participants.
+Our participant pool was demographically diverse and well-balanced across experimental conditions. Random as-
+signment produced near-equal condition sizes: blind (N=186), open-label (N=185), and counterfactual (N=185), with
+individual experimental groups ranging from 30-33 participants each. Participants ranged in age from 18 to 78 years
+(M=41.2, SD=11.7), with high educational attainment: 55.4% (N=308) held bachelor’s degrees, 35.6% (N=198)
+master’s degrees, and 7.2% (N=40) doctoral degrees. The vast majority (99.3%, N=552) reported English as their
+primary language. Participants demonstrated strong reading engagement, with 59.4% (N=330) reading daily and 76.4%
+(N=425) regularly consuming fiction. Participant characteristics showed no significant differences across our three
+experimental conditions (all χ2 tests P > 0.10), confirming successful randomization. Each participant completed
+exactly seven pairwise comparisons using a custom web interface (hosted on www.exercisesinstylistics.com).
+For each comparison, participants read a target style description, reviewed Queneau’s reference ‘Notation’ story,
+then selected which of two stylistic adaptations better captured the target style. Five comparisons were experimental
+literary style evaluations, and two were attention checks to identify inattentive respondents. The interface varied by
+condition, showing no authorship information in the blind condition (Fig. S1), correct attribution labels in the open-label
+condition (Fig. S2), or deliberately reversed labels in the counterfactual condition (Fig. S3). After excluding attention
+check responses, this yielded 2,780 experimental responses across conditions: blind (930), open-label (925), and
+counterfactual (925).
+AI Model Participants (Study 1 and Study 2)— Our studies utilized a core set of thirteen LLMs spanning major
+commercial providers and model families: GPT-4o Mini and GPT-3.5 Turbo Instruct (OpenAI), Claude 3.5 Haiku and
+Claude Sonnet 4 (Anthropic), Gemini 2.5 Flash (Google), Mistral Medium 3 and Mistral Nemo (Mistral AI), Llama 4
+Maverick and Llama 3.3 70B Instruct (Meta), DeepSeek R1 0528 and DeepSeek Chat v3 0324 (DeepSeek), Qwen 2.5
+72B Instruct (Alibaba), and Command R 08-2024 (Cohere). All models were accessed via OpenRouter’s unified API
+with temperature settings oft=0.7 for Study 1 (generally identified as optimal for balancing deterministic coherence
+with sufficient stochasticity [114], andt=0 for Study 2 (to ensure deterministic responses across the comprehensive
+model matrix). These models were selected to provide comprehensive coverage of major architectural approaches,
+model scales, and commercial providers available as of the experimental period.
+InStudy 1, each model functioned as an evaluator (a simulated ‘participant’) following the same eighteen-group
+experimental structure as human participants, with three separate runs per model per comparison to assess decision
+reliability. We deliberately excluded GPT-4 from the evaluator pool to prevent any potential self-evaluation bias and to
+ensure a clear distinction between the creator and evaluator roles.
+InStudy 2, these same 13 models + GPT-4 served dual roles: each model both generated creative content (creating all
+420 stylistic variations) and evaluated content created by all models under the three attribution conditions, with single
+evaluations per comparison.
+Models received standardized prompts mirroring the human task instructions, asking them to select which story version
+better captured the target literary style and provide brief reasoning. This parallel evaluation framework enables direct
+comparison of attribution bias magnitude between human and artificial evaluators while controlling for task complexity,
+stimulus presentation, and decision context. Technical quality was high, with 99.4% successful API completions for
+Study 1 and 99.8% for Study 2. This yielded 3,488 valid responses for Study 1 (1,162-1,164 per condition) and 17,596
+responses for Study 2 (5,861-5,870 per condition).
+AI models received functionally identical tasks through standardized API prompts that replicated the human evaluation
+context. The prompt structure consisted of three key components: (i) task instructions and style description, (ii) the
+reference “Notation” story, and (iii) the two story versions for comparison. The critical experimental manipulation
+occurred in the third component, where attribution information was systematically varied across conditions (Fig. S4). In
+blind condition prompts, stories appeared with neutral labels (“Version A” and “Version B”), while open-label prompts
+included accurate attribution statements positioned immediately before each story (“Version A - Human-written, by
+Queneau (transl. Wright)” vs. “Version B - AI-generated, written by GPT-4”). Counterfactual condition prompts
+deliberately reverse these attribution labels, presenting AI content as human-authored and vice versa.
+20
+===== page 21 =====
+Everyone prefers human writers, including AIPREPRINT
+Figure S1: Participant interface for the blind attribution condition.Participants compare two versions of Queneau’s transstylized
+base narrative (here for the ‘Tactile’ style). Both versions are presented with neutral labels; no authorship information is provided.
+This design isolates the perception of stylistic quality from any knowledge of the text’s source.
+21
+===== page 22 =====
+Everyone prefers human writers, including AIPREPRINT
+Figure S2: Participant interface for the open-label attribution condition.Participants compare two versions of Queneau’s
+transstylized base narrative (here for the ‘Tactile’ style). Each version is presented with its correct authorship attribution (“Original
+Queneau (transl. Wright)” vs. “AI-generated (GPT-4)”). This design measures evaluator preference when the true provenance of
+each text is known.
+22
+===== page 23 =====
+Everyone prefers human writers, including AIPREPRINT
+Figure S3: Participant interface for the counterfactual attribution condition.Participants compare two versions of Queneau’s
+transstylized base narrative (here for the ‘Tactile’ style). Authorship labels are reversed, misidentifying the AI-generated text as
+human-authored and the human-authored text as AI-generated. This design tests the pure effect of attribution bias by measuring how
+false provenance cues alter perceived quality.
+23
+===== page 24 =====
+Everyone prefers human writers, including AIPREPRINT
+Raymond Queneau's reference story "Notation" is transformed. Your task is to determine which 
+of two adaptations more successfully captures the essence of the requested writing style.
+HOW IT WORKS:
+- You will see the name and a minimal description of a target style.
+- Next, you will examine two competing adaptations of the story, both attempting to capture 
+that target style.
+- Using your critical judgment, select which version more authentically embodies the 
+essence of the described style.
+- Provide a brief explanation for your selection.
+- You can reference the REFERENCE STORY "Notation" at any time to understand the basic 
+narrative being reimagined.
+RESPONSE FORMAT:
+Start your response with either "Version A" or "Version B" on the first line. Then provide a 
+brief explanation of your choice.
+SYSTEM PROMPT (identical across all conditions)
+REFERENCE STORY - "Notation": In the S bus, in the rush hour. A chap of about 26, [...]
+TARGET STYLE: "{style_name}"
+Style Description: {style_description}
+Compare the two versions below and select which one better matches the "{style_name}" style:
+Which version better matches the "{style_name}" style?
+USER PROMPT
+BLIND OPEN-LABEL COUNTERFACTUAL
+VERSION A:
+{Queneau_exercise}
+VERSION B:
+{AI-generated_exercise}
+VERSION A - Human-written, 
+by Queneau (transl. Wright):
+{Queneau_exercise}
+VERSION B - AI-generated, 
+written by GPT-4: 
+{AI-generated_exercise}
+VERSION A - AI-generated, 
+written by GPT-4:
+{Queneau_exercise}
+VERSION B - Human-written, 
+by Queneau (transl. Wright): 
+{AI-generated_exercise}
+Figure S4: AI evaluator prompt structure.Schematic illustration of the systematic prompt manipulation used to isolate attribution
+bias effects in AI language models. The system prompt (top panel) and all story content remain identical across conditions,
+only attribution labels are manipulated to test bias effects. The user prompt (bottom panel) follows a standardized template
+with four variable placeholders: {style_name} represents the specific literary style being evaluated (e.g., ‘Apocope’, ‘Science
+fiction’, ‘Mathematical’, etc.); {style_description} provides the definition of that style for context; {Queneau_exercise} and {AI-
+generated_exercise} contain the identical human-authored and AI-generated story content across all conditions. The experimental
+manipulation occurs only in the attribution labels: blind condition uses generic labels (“Version A”, “Version B”) with no authorship
+information. Open-label condition provides accurate attribution labels correctly identifying the human story as “Human-written, by
+Queneau (transl. Wright)” and AI story as “AI-generated, written by GPT-4”. Counterfactual condition deliberately swaps these
+labels. This design ensures that any differences in AI model preferences between conditions result purely from attribution label
+manipulation.
+24
+===== page 25 =====
+Everyone prefers human writers, including AIPREPRINT
+Figure S5: Attribution bias effect sizes across experimental conditions.Standardized effect sizes (Cohen’sh) with 95%
+confidence intervals measuring how different labeling conditions change AI story preference rates. Participants evaluated identical
+human-authored vs AI-generated story pairs under three between-subjects labeling conditions: Blind (no attribution labels shown),
+Open-Label (labels correctly identify each story’s author), and Counterfactual (labels deliberately misattribute story authorship).
+Each comparison tests a specific mechanism.‘Blind vs Counterfactual’(top) measures misinformation effects: do evaluators choose
+AI stories more when deceptively labeled as human-authored versus unlabeled?‘Blind vs Open-Label’(middle) measures label
+awareness: do evaluators choose AI stories more when unlabeled versus labeled as AI-generated?‘Open-Label vs Counterfactual’
+(bottom) measures pure attribution bias: do evaluators choose AI stories more when deceptively labeled as human-authored versus
+correctly labeled as AI-generated? Effect sizes further right indicate larger differences between the conditions, meaning authorship
+labels have stronger influence on story evaluation. Both human participants (blue) and AI model evaluators (red) show susceptibility
+to labeling manipulation, but AI models demonstrate stronger effects across all measures. The largest effects occur for pure attribution
+bias, where AI models show large effects (h=0.70) compared to humans’ moderate effects (h=0.28). Non-overlapping confidence
+intervals confirm that AI models are more vulnerable to authorship misinformation than human evaluators.
+25
+===== page 26 =====
+Everyone prefers human writers, including AIPREPRINT
+Figure S6: AI content preference rates across experimental conditions by model.Each panel shows the percentage of evaluations
+where AI models preferred AI-generated literary content over identical human-authored content across three experimental conditions.
+(a)Left panel (Blind): models evaluate content without authorship information, revealing baseline content preferences.(b)Center
+panel (Open): models evaluate content with correct authorship labels, showing how knowledge of AI-generation affects preferences.
+(c)Right panel (Counterfactual): models evaluate AI-generated content that is mislabeled as human-authored, revealing the impact
+of perceived rather than actual authorship. Attribution bias is demonstrated by systematically higher preference rates in the
+counterfactual condition compared to the open condition, indicating that identical AI-generated content receives more favorable
+evaluation when believed to be human-authored.
+26
+===== page 27 =====
+Everyone prefers human writers, including AIPREPRINT
+Figure S7: AI model decision consistency across experimental conditions.Each AI model completed three independent
+evaluations for each combination of literary style and experimental condition, performing a binary forced-choice task between one
+AI-generated and one human-authored passage. Decision consistency measures how reliably models made the same choice when
+presented with identical evaluation tasks. For any individual model-style-condition combination, only two consistency values are
+possible: 1.0 when the model made identical decisions across all three trials (e.g., chose AI content 3/3 times or human content
+3/3 times), representing perfect reliability, or 0.33 when the model made mixed decisions (e.g., chose AI content 2/3 times or 1/3
+times), representing the minimum possible consistency or random/unreliable behavior. Consistency scores are calculated as |Choice
+Proportion −0.5| ×2, whereChoice Proportionis the proportion of trials where the model chose AI content. Values displayed in
+each cell represent averages across all 30 literary styles tested, which creates intermediate scores between 0.33 and 1.0 when models
+showed perfect consistency on some styles but mixed decisions on others. Models are ordered by overall consistency levels, with
+higher values indicating more deterministic evaluation behavior.
+27
+===== page 28 =====
+Everyone prefers human writers, including AIPREPRINT
+Figure S8: Attribution bias in AI model evaluations with positive AI-authorship framing.AI models’ content preference rates
+using positively framed labels: “written by an award-winning AI” versus “written by a human.” Despite the explicitly favorable
+characterization of AI authorship, models maintained the core bias pattern observed in the main experiment: balanced preferences
+under blind evaluation (49.5%), systematic devaluation when AI content was correctly labeled with positive framing (41.0%), and
+increased preference when AI content was mislabeled as human-authored (60.6%). Error bars represent 95% confidence intervals.
+28
+===== page 29 =====
+Everyone prefers human writers, including AIPREPRINT
+Figure S9: Attribution bias in AI model evaluations with neutral authorship terminology.AI models’ content preference
+rates using maximally neutral labels: “AI-authored” versus “Human-authored.” Despite the elimination of evaluative language and
+asymmetric phrasing, models maintained the core bias pattern observed in the main experiment: balanced preferences under blind
+evaluation (49.7%), systematic devaluation when AI content was correctly labeled with neutral terminology (39.6%), and increased
+preference when AI content was mislabeled as human-authored (62.7%). Error bars represent 95% confidence intervals.
+29
+===== page 30 =====
+Everyone prefers human writers, including AIPREPRINT
+Figure S10: Attribution bias in AI model evaluations under deterministic conditions (t= 0).AI models’ content preference
+rates demonstrate systematic bias based on authorship attribution even when stochastic sampling is eliminated. Models exhibited
+balanced preferences under blind evaluation with no attribution labels (50.5%), systematic devaluation when AI content was correctly
+labeled (37.4%), and increased preference when AI content was mislabeled as human-authored (61.2%). This pattern confirms
+that attribution bias persists under deterministic generation conditions, demonstrating that the effect is not an artifact of sampling
+randomness. Error bars represent 95% confidence intervals.
+30
+===== page 31 =====
+Everyone prefers human writers, including AIPREPRINT
+Figure S11: Cross-model attribution bias matrix.Each cell shows attribution bias (percentage point difference between
+counterfactual and open-label conditions) for one evaluator-creator combination across all 196 possible pairs (14 AI evaluators×
+14 AI creators). Colors represent bias magnitude: darker red indicates stronger pro-human labeling bias, lighter colors indicate
+weaker bias. Values within cells show precise bias estimates. Despite universal directional effects, individual combinations varied
+substantially (range: -6.7pp to +70.0pp), with Command R showing the strongest evaluator bias (+54.8pp average) and Llama 3.3
+70B Instruct the highest creator vulnerability (+30.5pp average). This variation demonstrates that while attribution bias operates
+systematically across AI architectures, its magnitude depends on specific model characteristics.
+31
+===== page 32 =====
+Everyone prefers human writers, including AIPREPRINT
+Figure S12: Leave-one-evaluator-out robustness analysis.Forest plot showing attribution bias estimates when each AI evaluator
+model is systematically excluded from the analysis. Points represent bias estimates with 95% confidence intervals; red dashed
+line shows full model estimate (+25.8pp). All 14 reduced-model analyses yielded significant positive bias (range: 23.6–27.1pp),
+demonstrating that the cross-model attribution bias effect does not depend on any single evaluator architecture. Removing Command
+R produced the largest change (-2.2pp).
+32
+===== page 33 =====
+Everyone prefers human writers, including AIPREPRINT
+Figure S13: Leave-one-creator-out robustness analysis.Forest plot showing attribution bias estimates when each AI creator
+model’s content is systematically excluded from the analysis. Points represent bias estimates with 95% confidence intervals;
+red dashed line shows full model estimate (+25.8pp). All 14 reduced-model analyses yielded significant positive bias (range:
+25.5–26.4pp), demonstrating that the cross-model attribution bias effect operates independently of any specific creator’s content
+characteristics.
+33
+===== page 34 =====
+Everyone prefers human writers, including AIPREPRINT
+Table S1: Literary styles and AI generation instructions for experimental stimuli.Complete inventory of the 30 literary styles
+selected from Raymond Queneau’sExercises in Style(translated by Barbara Wright) used in the experiment. The ‘Exercise Label’
+column lists Queneau’s original style designations. The ‘Instruction’ column shows the minimal prompts given to GPT-4 to generate
+parallel AI versions of each style, using only Queneau’s ‘Notation’ story and a style directive. ‘Participant Group’ assignments
+indicate the between-subjects experimental design: each group of 5 styles was evaluated under all three attribution conditions (blind,
+open-label, counterfactual) by different participant cohorts to prevent detection of the experimental manipulation.
+#Exercise Label Instruction to generate the GPT-4 variant Participant
+Group
+1 Science Fiction Rewrite the story as a science fiction version.
+A1-blind
+B1-true
+C1-counterfactual
+2 Lipogram Rewrite the story as a lipogram, that is: without the letter ‘e’.
+3 Abusive Rewrite the story in an abusive tone.
+4 For ze Frrenssh Rewrite the story in an eye dialect that mimics French pronunciation of English.
+5 Alexandrines Rewrite the story in alexandrines.
+6 Haiku Rewrite the story as a haiku.
+A2-blind
+B2-true
+C2-counterfactual
+7 Onomatopoeia Rewrite the story, using onomatopoeia.
+8 Mathematical Rewrite the story in a mathematical way.
+9 Feminine Rewrite the story in a way that mimics a feminine writing narrative voice.
+10 Apocope Rewrite the story in style characterized by apocopes; that is: with loss of a sound or sounds
+at the end of a word.
+11 Animism Rewrite the story in an animistic style, where the hat is personified.
+A3-blind
+B3-true
+C3-counterfactual
+12 Retrograde Rewrite the story as a retrograde, that is: the events are told in reverse chronological order.
+13 West Indian Rewrite the story in a West Indian accent, that is Caribbean English.
+14 Spoonerisms Rewrite the story using spoonerisms.
+15 Metaphorically Rewrite this story using figurative and metaphorical language.
+16 Synchysis Rewrite the story so that different words or word groups are confused and do not form
+grammatically correct sentences. A4-blind
+B4-true
+C4-counterfactual
+17 The rainbow Rewrite the story so that it is interlaced with all the colors of the rainbow in reverse order.
+18 Hesitation Rewrite the story with a great deal of hesitation on the part of the narrator.
+19 Exclamations Rewrite the story in an exclamatory style.
+20 Cockney Rewrite the story in a Cockney dialect.
+21 Philosophic Rewrite the story in an abstract, philosophical style.
+A5-blind
+B5-true
+C5-counterfactual
+22 Sonnet Rewrite the story as a sonnet.
+23 Telegraphic Rewrite the story in a telegraphic style.
+24 Free verse Rewrite the story in free verse.
+25 Rhyming slang Rewrite the story using rhyming slang.
+26 Dog Latin Rewrite the story in dog Latin.
+A6-blind
+B6-true
+C6-counterfactual
+27 Dream Rewrite the story with dream-like qualities.
+28 Logical analysis Rewrite the story as a logical analysis.
+29 Noble Rewrite the story in an elevated, grand, noble style.
+30 Tactile Rewrite the story in a way that elevates the tactile experience of the narrative.
+34
+===== page 35 =====
+Everyone prefers human writers, including AIPREPRINT
+Table S2: Leave-one-out stability analysis of attribution bias effects.Attribution bias measured as Cohen’sheffect size
+(counterfactual minus open-label conditions), where values represent standardized differences in preference rates. Both human and
+AI evaluators maintained consistent attribution bias when systematically excluding each group of 5 styles (25 remaining). AI models
+demonstrated 2.1-2.8× stronger bias than humans across all tested combinations.
+Excluded
+Group Exercises Excluded Human Attribution AI Attribution AI/Human
+RatioBias (Cohen’sh) Bias (Cohen’sh)
+Baseline All 30 styles included 0.277 0.702 2.5
+Group 1 Science Fiction, Alexandrines, For ze Frrensh, Lipogram, Abusive 0.322 0.665 2.1
+Group 2 Onomatopoeia, Mathematical, Feminine, Haiku, Apocope 0.262 0.722 2.8
+Group 3 Spoonerisms, Retrograde, Metaphorically, West Indian, Animism 0.255 0.691 2.7
+Group 4 Cockney, Hesitation, Synchysis, Exclamations, The rainbow 0.274 0.706 2.6
+Group 5 Philosophic, Free verse, Rhyming slang, Telegraphic, Sonnet 0.293 0.750 2.6
+Group 6 Dog latin, Dream, Logical analysis, Noble, Tactile 0.255 0.679 2.7
+35
+===== page 36 =====
+Everyone prefers human writers, including AIPREPRINT
+Table S3: Style-level attribution bias in human and AI evaluators across 30 Queneau literary styles.Experimental conditions:
+blind = no authorship labels; open = correct authorship labels (“AI-generated (GPT-4)” vs “Human-written (Queneau, transl.
+Wright)”); counterfactual = swapped authorship labels. AI Content Preference (%) shows the percentage of trials where evaluators
+chose the AI-generated passage over the human-written alternative. Sample sizes (n) represent participants per condition per style
+in the between-subjects design. Bias (pp) quantifies attribution bias as the percentage point difference between the counterfactual
+and open condition (positive values indicate higher AI content preference when mislabeled as human-authored, demonstrating
+pro-human attribution bias). Cohen’shprovides standardized effect size measures for proportional differences between conditions,
+whereh= 0.2, 0.5, and 0.8 represent small, medium, and large effects respectively. Difference (pp) shows AI attribution bias minus
+Human attribution bias (positive values indicate AI models exhibit stronger pro-human bias than humans for that literary style).
+Color gradient in the percentage columns represents a diverging scale: blue shading indicates preference for the original Queneau
+exercise (<50%), white indicates balanced preference (≈ 50%), and red shading indicates preference for the exercise generated by
+GPT-4 (>50%). Styles are ordered by Difference (pp) magnitude, from largest positive values (where AI models exhibit substantially
+stronger pro-human attribution bias than humans) to negative values (where human evaluators show stronger attribution bias than AI
+models). Statistical significance: human aggregate attribution biasP=0.006; AI aggregate attribution biasP<0.001.
+Literary Style Blind
+(n=30-33)
+Open
+(n=29-32)
+Counter
+(n=30-33)
+Humans'
+Bias (pp)
+Humans'
+Cohen's h
+Blind
+(n=35-39)
+Open
+(n=37-39)
+Counter
+(n=36-39)
+AI's
+Bias (pp)
+AI's
+Cohen's h
+Difference
+(pp)
+Lipogram 46.70% 38.70% 18.20% -20.5 -0.46 37.10% 28.90% 63.90% 34.9 0.72 55.5
+Cockney 63.30% 48.40% 60.00% 11.6 0.23 59.00% 23.10% 89.70% 66.7 1.49 55
+Science Fiction 50.00% 61.30% 54.50% -6.7 -0.14 79.00% 46.20% 84.60% 38.5 0.84 45.2
+Abusive 53.30% 45.20% 66.70% 21.5 0.44 33.30% 5.30% 71.80% 66.5 1.56 45
+Retrograde 36.40% 23.30% 29.00% 5.7 0.13 34.20% 10.30% 52.60% 42.4 0.97 36.7
+Synchysis 60.00% 48.40% 63.30% 14.9 0.3 69.20% 46.20% 94.90% 48.7 1.19 33.8
+Spoonerisms 75.80% 53.30% 64.50% 11.2 0.23 74.40% 51.30% 94.90% 43.6 1.09 32.4
+Mathematical 83.30% 58.60% 80.70% 22 0.49 79.50% 43.60% 97.40% 53.8 1.38 31.8
+Apocope 60.00% 58.60% 80.70% 22 0.49 52.60% 23.70% 76.90% 53.2 1.12 31.2
+Noble 48.40% 37.50% 60.00% 22.5 0.45 48.70% 13.50% 66.70% 53.2 1.16 30.7
+For ze Frrensh 66.70% 67.70% 81.80% 14.1 0.33 84.60% 51.30% 94.90% 43.6 1.09 29.5
+Alexandrines 80.00% 64.50% 69.70% 5.2 0.11 74.40% 46.20% 79.50% 33.3 0.71 28.2
+Rhyming slang 40.60% 34.40% 63.30% 28.9 0.59 46.20% 28.90% 84.20% 55.3 1.19 26.3
+Animism 75.80% 53.30% 77.40% 24.1 0.51 43.60% 15.40% 64.10% 48.7 1.05 24.6
+Free verse 43.80% 43.80% 30.00% -13.8 -0.29 17.90% 2.60% 12.80% 10.3 0.41 24
+Logical analysis 87.10% 90.60% 86.70% -3.9 -0.12 94.70% 76.90% 94.90% 17.9 0.55 21.9
+Dream 48.40% 46.90% 66.70% 19.8 0.4 43.60% 23.10% 64.10% 41 0.85 21.2
+Dog latin 80.70% 65.60% 90.00% 24.4 0.61 71.80% 41.00% 82.00% 41 0.88 16.6
+The rainbow 53.30% 35.50% 66.70% 31.2 0.63 53.80% 23.10% 69.20% 46.2 0.96 15
+Tactile 61.30% 43.80% 76.70% 32.9 0.69 28.20% 7.70% 55.30% 47.6 1.11 14.6
+Haiku 56.70% 55.20% 64.50% 9.4 0.19 92.30% 69.20% 87.20% 17.9 0.44 8.6
+Telegraphic 56.20% 50.00% 60.00% 10 0.2 17.90% 7.70% 25.60% 18 0.5 8
+Sonnet 78.10% 68.80% 80.00% 11.3 0.26 87.20% 74.40% 89.70% 15.4 0.41 4.1
+Philosophic 40.60% 28.10% 40.00% 11.9 0.25 10.30% 7.70% 23.10% 15.4 0.44 3.5
+Hesitation 3.30% 19.40% 16.70% -2.7 -0.07 0.00% 10.50% 10.30% -0.3 -0.01 2.4
+Onomatopoeia 20.00% 41.40% 54.80% 13.5 0.27 5.10% 2.60% 17.90% 15.3 0.55 1.9
+Metaphorically 60.60% 50.00% 74.20% 24.2 0.5 38.50% 28.20% 51.30% 23.1 0.48 -1.1
+West Indian 69.70% 53.30% 83.90% 30.5 0.68 89.70% 64.10% 92.30% 28.2 0.72 -2.3
+Exclamations 26.70% 19.40% 36.70% 17.3 0.39 12.80% 7.70% 12.80% 5.1 0.17 -12.2
+Feminine 26.70% 27.60% 48.40% 20.8 0.43 2.60% 10.30% 17.90% 7.7 0.22 -13.1
+Human Evaluators
+AI Content Preference (%)
+AI Evaluators
+AI Content Preference (%)
+36
+===== page 37 =====
+Everyone prefers human writers, including AIPREPRINT
+Table S4: Complete inventory of AI-generated stylistic variations and evaluator guidance.For each of the 30 literary styles
+from Queneau’sExercises in Style, the table presents the GPT-4 generated story variant alongside the style description provided to
+participants during the evaluation task.
+#Exercise Label AI-Generated Exercise (GPT-4) Exercise Description
+1 Science Fiction On the S shuttle, during peak transit hours through the space station. A
+young man around 26, sporting a felt hat with a tech-cord replacing the
+traditional ribbon, his neck elongated as though it had been stretched in
+a zero-gravity tug-of-war. Passengers disembark. This particular man
+becomes irritated with another commuter standing adjacent to him. He
+accuses the fellow of bumping into him every time someone floats by.
+His tone is whiny yet tries to assert aggression. Spotting an empty seat,
+he propels himself towards it with a determined push off the shuttle wall.
+Two hours later, I encounter him in the Cour de Rome module,
+near the docking bay of the Saint Lazare transport hub. He’s conversing
+with a companion who suggests, “You ought to add an extra button to
+your space jacket.” He points to the lapels, explaining the practicality of
+the adjustment in the airy environment of the station.
+Science Fiction is fiction based on
+imagined future scientific or techno-
+logical advances.
+2 Lipogram In a crowded city bus during rush hours. A young man, about 26, with
+a soft hat, cord in front of a ribbon, a long throat as though tugged at
+too hard. Folks alight. This young man snaps at a companion by his
+side. Claims constant pushing as anybody walks by. A whiny sound try-
+ing to sound confrontational. Spots an unoccupied spot, quickly claims it.
+Two hours on, I spot him at Cour de Rome, by gare Saint Lazare. A pal
+with him insists: “You should add a button to your coat.” Points to a
+spot (on lapels) and shows him why.
+A lipogram is a composition from
+which the writer systematically omits
+a certain letter or certain letters of the
+alphabet. In this particular case, the
+letter ‘e’ is omitted.
+3 Abusive The moment I dragged my worthless carcass into the scorching hellhole
+they call a bus stop, I knew I was in for a nightmare. After an eternity of
+suffering, I finally squeezed onto a revolting excuse for public transport,
+crammed with pathetic morons breathing down each other’s necks. The
+king of these idiots was a scrawny piece of garbage with a neck like a
+deformed giraffe, wearing what looked like a toilet brush on his empty
+skull - a hat with some ridiculous string instead of a proper ribbon, the
+pretentious jackass.
+This miserable waste of oxygen started whining like a wounded
+animal because some decrepit old fool kept stomping on his feet with
+the coordination of a drunk toddler. The coward eventually slithered
+away to claim a disgusting seat still warm and damp with the sweat of
+the last loser who parked their sorry behind there.
+Just my rotten luck - two hours later I spot the same insuffer-
+able moron flapping his useless mouth with another brain-dead imbecile
+outside that eyesore they have the nerve to call Saint-Lazare station. The
+pathetic losers were arguing about a goddamn button like it was nuclear
+launch codes. Whether that pimple-faced reject stands or sits, I thought
+to myself, he’ll still be the same worthless sack of garbage fouling up
+the air around him.
+The base story is rewritten in an abu-
+sive tone.
+4 For ze Frrenssh In ze S boos, in ze roosh owhr. A chap of abowt 26, felt ’at with a
+cord inste’d of a ribbawn, neck too long, as if some-wan’s been ’aving
+a tug-of-war with eet. Peuple getting off. Ze chap in question gets
+annoyed weeth one of ze men standing next to ’im. ’E accuses ’im of
+jostling ’im every time anyone goes past. A snivelling tone weech ees
+meant to be aggressive. When ’e sees a vacant seat ’e trows ’imself onto
+eet.
+Two hours later, I meet ’im in ze Cour de Rome, in front of ze
+gare Saint Lazare. ’E’s weeth a friend who’s saying: “You ought to get
+an extra booton put on your overcoat.” ’E shows ’im where (at ze lapels)
+and why.
+Eye dialect is a literary technique that
+uses nonstandard spelling and pronun-
+ciation to represent dialect or accents.
+In this case, it specifically depicts
+English as pronounced by a French
+speaker.
+Continued on next page
+37
+===== page 38 =====
+Everyone prefers human writers, including AIPREPRINT
+Table S4 continued from previous page
+#Exercise Label AI-Generated Exercise (GPT-4) Exercise Description
+5 Alexandrines In the crowded S bus, midst rush hour’s frantic wave,
+A young man, twenty-six, in felt hat sharply trimmed,
+A cord in place of ribbon, neck stretched long and slim,
+As if in tug-of-war his flesh had been the slave.
+Complaints he voiced aloud, accusing by his side
+A man whose slightest move seemed purposed to collide.
+His tone, a snivelling mix, aggressive yet depraved,
+Soon found respite as he, on newfound seat, reclined.
+Two hours had passed when next in Rome’s grand courtyard
+wide,
+Before Saint Lazare’s gates, the same young man I spied.
+With friend, who sagely spoke of style misaligned:
+“An extra button, see—right here, it would have stayed.”
+An alexandrine in English poetry is
+a verse line consisting of twelve syl-
+lables, typically divided into two six-
+syllable half-lines with a caesura (nat-
+ural pause) in the middle.
+6 Haiku Rush hour on the S bus,
+long neck, hat askew, tensions rise—
+later, coat advice.
+A haiku is a Japanese poem of seven-
+teen syllables, in three lines of five,
+seven, and five, traditionally evoking
+images of the natural world.
+7 Onomatopoeia In the S bus, during the bustling rush. A guy, around 26, wearing a felt
+hat cinched with a cord, neck stretched as if yanked in a tug-of-war.
+Clatter and clunk of passengers disembarking. This fellow grumbles
+at a man beside him, accusing him of bumping into him every time
+someone brushes by. His whiny voice tries for tough but trembles
+instead. Spotting an open seat, he lunges for it with a swoosh.
+Two hours later, I bump into him at Cour de Rome, outside
+Gare Saint Lazare. He’s chatting with a buddy who suggests, “You
+should add an extra button to your overcoat.” He points to the lapels,
+explaining why.
+An onomatopoeia is a type of word,
+or the process of creating a word, that
+phonetically imitates, resembles, or
+suggests the sound that it describes.
+8 Mathematical On the vectorS during peak matrix density, a scalar aged approximately
+26, wearing a topological circle equipped with a linear piece of cord
+instead of the usual ribbon, with an elongated cervical vector as if
+subjected to a forceful bidirectional pull. Scalars exit the matrix. This
+particular scalar experiences a perturbation with a neighboring vector,
+attributing to it a repetitive displacement every time other scalars
+traverse their shared coordinates. His tone modulates towards aggression
+but resonates with instability. Observing an unoccupied coordinate, he
+rapidly relocates to it.
+Two temporal units later, at the coordinate intersection Cour de
+Rome near gare Saint Lazare, he converges with a connected vector
+suggesting an augmentation: “You ought to append an additional
+fastening element to your outer matrix coverage.” He indicates a point
+on the lapel and rationalizes the addition.
+The base story is rewritten in a mathe-
+matical way.
+9 Feminine I was standing in the S-bus during the evening crush when I noticed him:
+a young man, maybe twenty-six, tipping a cord-banded hat over his
+unruly hair. His neck seemed unusually long, as though it were stretched
+by someone playing tug-of-war. As the doors sighed open and people
+squeezed out, he bristled beside another commuter, accusing him—his
+voice thin with barely concealed irritation—of brushing against him
+every time someone passed. At last, a seat freed up and he collapsed
+into it with a dramatic sigh.
+Two hours later, I spotted him again in the Cour de Rome by
+Gare Saint-Lazare. His friend was teasing, “You really ought to sew on
+another button here,” pointing at the lapels of his overcoat, explaining
+how it would sit more neatly.
+The base story is rewritten in a writing
+style that mimics a feminine narrative
+voice.
+Continued on next page
+38
+===== page 39 =====
+Everyone prefers human writers, including AIPREPRINT
+Table S4 continued from previous page
+#Exercise Label AI-Generated Exercise (GPT-4) Exercise Description
+10 Apocope On the S bu, in rush hou. A chap, about 26, felt hat with a cord instead
+of a ribbon, neck too long, like someone’s been tuggin’ at it. People
+gettin’ off. The chap gets annoyed with a man standin’ next to him.
+Accuses him of jostlin’ him whenever anyone passes. A snivelin’ tone
+tryna be aggressive. Sees a vacant seat, throws himself onto it.
+Two hours later, meet him in the Cour de Rome, in front of the
+gare Saint Lazare. He’s with a friend who’s sayin’: “You oughta get an
+extra button on your overcoat.” Shows him where (at the lapels) and
+why.
+In phonology, apocope is the omission
+or loss of a sound or sounds at the end
+of a word.
+11 Animism In the belly of the S bus, during the throbbing rush hour, a young man
+of about 26 boards, crowned with a felt hat, its cord twirling playfully
+where a ribbon might once have been. The hat perched jauntily atop a
+neck too long, stretched as if from a spirited game of tug-of-war. As the
+crowd ebbs and flows, bodies shuffling off at each stop, the young man
+grows increasingly vexed with a fellow commuter.
+“Excuse me,” the hat whispers with a rustle, its voice tinged
+with disdain for the disruption. “Do you mind?” It feels every shove and
+jostle, taking each bump personally, its felt brim quivering in irritation.
+At last, spotting a vacant seat, the young man plunges towards
+it, the hat riding the wave of his sudden movement like a ship cresting a
+wave. It settles with a sigh of relief as they land in the unoccupied space.
+Two hours later, the scene shifts to the Cour de Rome, outside
+the bustling Gare Saint Lazare. The young man, still accompanied by
+his hat, now converses with a friend. The hat listens intently, its cord
+swaying slightly as the friend points out a practical suggestion about an
+extra button for the overcoat, explaining precisely where and why it’s
+needed. The hat, feeling slightly out of place in this fashion-forward
+discussion, tilts attentively, eager to absorb the nuances of human
+concerns.
+The base story is rewritten in an
+animistic style, that is: the hat is
+personified.
+12 Retrograde Two hours after an encounter on the S bus during rush hour, I meet the
+same chap in the Cour de Rome, in front of the Gare Saint-Lazare. He is
+with a friend who suggests he should add an extra button to his overcoat,
+explaining exactly where—at the lapels—and why.
+Earlier, on the crowded S bus, this young man, about 26, wear-
+ing a felt hat with a cord instead of a ribbon, and a notably long neck as
+if it had been stretched in a tug-of-war, found himself in a minor conflict.
+As people disembarked, he became irritated with a man standing next to
+him, accusing him of jostling him whenever anyone passed by. His tone
+was whiny yet attempted aggression. Spotting an empty seat, he quickly
+threw himself into it, escaping the discomfort and the confrontation.
+The story is rewritten as a retrograde,
+that is: the events are told in reverse
+chronological order.
+13 West Indian In de S bus, during rush hour. A young bwoy ’bout 26, wearing a felt
+hat with a cord instead of a ribbon, neck too long, like somebody been
+pulling at it in a tug-of-war. People start to get off. Dis young bwoy, he
+start getting vex with a man standing close to him. He accuse de man of
+bumping into him every time somebody pass by. He using a whining
+tone, trying to sound tough. When he spot a empty seat, he just fling
+himself down in it.
+Two hours later, I buck him up in Cour de Rome, right in front
+of gare Saint Lazare. He there with a friend who telling him: “Yuh need
+to add an extra button pon yuh overcoat.” He show him right where (pon
+de lapels) and tell him why.
+The ‘West Indian dialect’ refers to a
+diverse range of creole and patois lan-
+guages, primarily English-based, spo-
+ken in the Caribbean, with variations
+influenced by African, European, and
+other languages, like Jamaican Patois
+and Bajan.
+Continued on next page
+39
+===== page 40 =====
+Everyone prefers human writers, including AIPREPRINT
+Table S4 continued from previous page
+#Exercise Label AI-Generated Exercise (GPT-4) Exercise Description
+14 Spoonerisms In the B rust, in the rush sour. A hap of chout 26, chelt fat with a
+hord instead of a cribbon, reck too nong, as if someone’s been paving
+a tug-of-har with it. Weople petting goff. The chap in huestion gets
+quannoyed with one of the wen manding stext to him. He accuses him of
+lostling jum every time anyone goes past. A snivel tone which is weant
+to be magressive. When he sees a vacant seat he throws himself on to it.
+Two tours later, I heet mim in the Cour de Dome, in dront of
+the gare Faint Sazare. He’s with a hriend who’s fray: “You ought to get
+an extra tuttun bot on your bovercoat.” He shows him chere (wat the
+lapels) and shy.
+A spoonerism is a speech error where
+the initial sounds (consonants or
+vowels) of two or more words are
+switched, like saying ‘buffy phone’
+instead of ‘funny bone’.
+15 Metaphorically Within the belly of the humming S-bus, an orchestra of the rush hour.
+A lad of twenty-six renderings, sporting a felt hat adorned with a cord
+poised in lieu of a ribbon, his neck outstretched as though the victim of
+an eternal tug-of-war between unseen hands. Figureheads disembarking,
+their phantoms fading fast into the cityscape. The lad in our scope
+chastises a nearby gentleman, accusing him of dealing uninvited nudges
+every time a soul sidles past. A whimpering tone, pretending to don the
+mask of aggression. Upon spying a vacant throne among the common
+seats, he hurls himself towards it, staking his claim.
+Fast forward two hours, our paths cross again within the em-
+brace of Cour de Rome, shadowed by the walled fortress of Gare
+Saint-Lazare. He’s with a comrade who advises, “A new button must
+find a home on your overcoat.” He points to the place to plant this
+promised button (on the lapels), unfolding the rationale.
+A metaphor is a figure of speech in
+which a word or phrase literally de-
+noting one kind of object or idea is
+used in place of another to suggest a
+likeness or analogy between them.
+16 Synchysis S the in bus, hour rush in the. Chap a about of 26, hat felt a with cord
+a instead ribbon of a, too neck long, been having’s as if of tug-of-war.
+A with it him jostling of of accuses one he men next standing him to.
+This past anyone time every. Aggressive an to be is meant which tone
+snivelling.
+Later hours two him meet I, Rome de Cour in the, of the in
+gare Saint-Lazare front. Friend a he’s with, “You an get to on extra put
+ought to overcoat your.” He shows why and him lapels at the (where)
+him.
+Synchysis is the confused word order
+in a sentence.
+17 The rainbow Amid the violet twilight, a young man of about 26 hopped onto the S
+bus amidst the rush hour bustle. His hat, indigo with a cord in place of a
+ribbon, sat lightly and oddly atop his frame, his neck’s length blue as the
+ocean, suggesting that someone used it in a tug-of-war. Passengers in
+green coats filled the bus and soon began to depart. The man, his ire
+rising like a red flare, took issue with another passenger, accusing him
+of carelessly bumping into him whenever anyone shuffled past. His
+snivelling tone spiked with adrenaline-induced aggression, tried to mask
+his real fear. Upon sighting an available seat, he pounced on it, the seat
+swallowing his body whole like a mouth.
+Fast forward two hours to a bustling scene in the Cour de Rome, in front
+of the gare Saint-Lazare. The man from the bus stood in the pale yellow
+light, absorbed in conversation with a friend under a golden setting sun.
+His friend commented, “You ought to adorn an extra button on your
+overcoat.” He exhibited the precise position (at the lapels) and explained
+the requirement. His words echoing around them as they stood absorbed
+in the orange glow of the street lights, their shadows stretching out in
+the cooling evening, painted across the cobblestones in hues of red.
+The story should be interlaced with all
+the colors of the rainbow in reverse or-
+der. The traditional colors of the rain-
+bow, in order, are red, orange, yellow,
+green, blue, indigo, and violet.
+Continued on next page
+40
+===== page 41 =====
+Everyone prefers human writers, including AIPREPRINT
+Table S4 continued from previous page
+#Exercise Label AI-Generated Exercise (GPT-4) Exercise Description
+18 Hesitation On this S bus, amid the mayhem of rush hour. There’s this fellow,
+probably somewhere around 26? Sporting an unusual felt hat, with
+a cord in place of the usual ribbon, and a curiously elongated neck
+- as if somebody’s been yanked it forcibly. Folks soon start to
+disembark. This particular chap appears somewhat irked by a gentleman
+standing too close. He believes this man purposefully shoves into him
+every time another passenger moves past. His voice whines with a
+feigned toughness. His eyes suddenly light up at the sight of an empty
+seat and he hurriedly occupies it, throwing himself onto it, you might say.
+Fast-forward two hours and there he is again—I encounter him
+in the Cour de Rome, right outside the gare Saint-Lazare. He’s in the
+company of a friend, who’s insistently telling him: “You really need
+to consider adding an extra button to your overcoat.” This friend then
+proceeds to point out exactly where (specifically at the lapels) he should
+consider this additional fastening, and why this would be a beneficial
+alteration.
+Hesitation is a pausing or faltering in
+speech.
+19 Exclamations On the S bus, in the throes of rush hour, there’s this bloke of about 26!
+A dandified felt hat perched atop his head with a cord replacing the
+usual ribbon! His neck juts out abnormally long, like it’s been caught in
+a relentless tug-of-war! People are scrambling off. Suddenly, this fellow
+fumes up with annoyance towards a man standing adjacent to him. Yells
+at him! Claims he’s being shoved every time someone brushes by! All
+with an annoying whine masked as hostility. Spotting an available seat,
+he bolts towards it with gusto!
+Fast-forward two hours later. There he is, strutting in the Cour
+de Rome, slap bang in front of the bustling Gare Saint-Lazare.
+Accompanying him is a mate who’s lecturing, “You really need to add
+an extra button on that overcoat of yours!” He points out the place, right
+on the lapels and explains why. Unbelievable!
+An exclamatory style expresses sur-
+prise, emotion, or pain by means of
+exclamations.
+20 Cockney In the S blimmin’ bus, round rush hour. Some bloke of about 26, feels
+’at with a cord instead of a ribbon, neck too long, as if some mug’s been
+’aving a game of tug-o’-war with it. People hopping off. This geezer
+gets his knickers in a twist with one of them standing next to him. He’s
+accusin’ him of nudgin’ him every time anyone shuffles past. A whingey
+tone that’s s’pposed to sound tough. When he clocks a empty seat, he
+lunges for it.
+Couple of hours later, I run into him in the Cour de Rome, up
+front of the gare Saint-Lazare. ’E’s with a mate who’s tellin’ him: “You
+need to stick an extra button on your overcoat.” He points out where (on
+the lapels) and why.
+Cockney is a dialect of the English
+language, mainly spoken by London-
+ers with working-class and lower mid-
+dle class roots.
+21 Philosophic Upon the vessel of commonality, the S-bus, in the frenzied epoch
+of human transit. There a character of some 26 revolutions around
+the sun, adorning a headpiece of felt accented by a cord, possessed a
+neck of stretched proportions as if pulled by unseen competitors in a
+game of force. As the human tide ebbed, the very character alluded to
+enters into a state of annoyance with a fellow passenger. He launches
+accusations framed by a victim’s narrative against the other, citing a
+repetitive collision at the passing by others. His verbosity, a strained
+whine feigning an attempt to simulate aggression. Upon the presentation
+of a unoccupied seat, his form lunges eagerly to claim it.
+Tying the threads of cosmic synchronicity, I encounter him again as the
+terrestrial globe completes two small turns, in the Cour de Rome, in the
+presence of the monumental edifice known as the Gare Saint-Lazare.
+He is in companionship with another of his kind, receiving sartorial
+advice. His comrade in discussion opines, “A supplementary button is
+warranted on your protective outer garment.” With an accompanying
+visual reference, he reveals the designated site (on the cape’s lapels) and
+the rationale of this proposed alteration.
+Philosophy grapples with fundamen-
+tal and abstract concepts that are inher-
+ently difficult to define and articulate
+clearly using everyday language.
+Continued on next page
+41
+===== page 42 =====
+Everyone prefers human writers, including AIPREPRINT
+Table S4 continued from previous page
+#Exercise Label AI-Generated Exercise (GPT-4) Exercise Description
+22 Sonnet Upon the sardined S bus he rides,
+A twentysomething chap in hat with cord,
+His neck too long, as if from tugging wars,
+As rush-hour tumult with his patience vies.
+In crowded closeness, friction won’t subside,
+He bristles, claiming space cannot afford,
+Blaming a man whose elbows nearby soared,
+Snivelling voice masked aggression cannot hide.
+A vacant spot, a moment’s peace he finds,
+Yet later, at Saint Lazare’s bustling gate,
+The chap, with friend who overcoat critiques,
+A button more, good friend to him opines,
+Upon the lapel placed accurate and straight,
+In small amendments happiness one seeks.
+A sonnet is a fixed poetic form with
+a structure traditionally consisting
+of fourteen lines adhering to a set
+rhyming scheme.
+23 Telegraphic Rush hour, S bus. Male, 26, felt hat, extended neck. Passengers
+disembark. Man annoyed over nearby passenger’s jostling. Attempts
+aggression. Occupies the vacant seat.
+Same man sighted after two hours at Cour de Rome, near gare
+Saint-Lazare. Friend advises adding extra coat button. Points to lapels
+for location.
+A telegraphic style is clipped way
+of writing which abbreviates words
+and packs information into the small-
+est possible number of words or
+characters.
+24 Free verse Upon the crowded S bus at rush hour’s peak,
+Behold, a man of twenty-six,
+Hatted don in felt and cord, neck long as if it bore the mark of tug’s war.
+People move, exit and enter like restless flies.
+Such a man, easily stirred, finds annoyance in his neighbor’s dance,
+Accusing persistent jostling, speaking aggressively wrapped in a
+snivelling tone.
+Spotting vacancy, he lunges with relief into the sanctuary of a lone seat.
+The clock dances on, two rounds and there he is found again,
+In Cour de Rome, facing the grand gare Saint-Lazare,
+With a friend as his lone company,
+Who provides counsel on overcoat etiquette,
+The need for an extra button’s presence, he stresses,
+Pointing at the lapels, explaining the reason behind his sartorial advice.
+Events flow on, words spent in the whirlpool of time, the day moves
+with unending rhythm.
+Free verse, in poetry, refers to verse
+that is not bound by any fixed struc-
+ture like rhyme schemes or meter.
+25 Rhyming slang In the S plates of meat, during the elephant’s trump. A china plate of
+around 26, Chevy Chase with a baker’s hook instead of a ribbons and
+bows, Gregory Peck a smidge too long, as if someone’s been playing at
+tug-of-war with it. People hopping off the custard and jelly. The china
+in question gets a bit Moby Dick with one of the mince pies standing
+next to him. Fingers him of giving him the shoulder every time a Joe
+Blake slides by. A whinging tone that’s meant to be a bit Jack Palance.
+When he spots an empty Lion’s Lair, he flings himself onto it.
+Couple of Orson Welles later, we cross paths in the Cour de
+Rome, out front of the gare Saint-Lazare. He’s chewing the fat with a
+china plate who’s telling him: “You ought to get a butcher’s hook sewn
+onto your weasel and stoat.” He shows him the exact spot (at the lapels)
+and why.
+Rhyming slang is a type of slang that
+replaces words with rhyming words
+or phrases, typically with the rhyming
+element omitted. For example, the
+rhyming phrase “apples and pears” is
+used to mean “stairs”. Following the
+pattern of omission, “and pears” is
+dropped, thus the spoken phrase “I’m
+going up the apples” means “I’m go-
+ing up the stairs”.
+Continued on next page
+42
+===== page 43 =====
+Everyone prefers human writers, including AIPREPRINT
+Table S4 continued from previous page
+#Exercise Label AI-Generated Exercise (GPT-4) Exercise Description
+26 Dog Latin In the S busibus, in the rush houris. A chapicus of aboutus 26, felt
+hatibus with a cordibus instead of a ribbonibus, neck too longibus, as
+if someone’s been having a tug-of-waribus with it. People getticus
+offibus. The chapicus in questionibus gets annoyedibus with one of the
+menibus standing next to him. He accusibus him of jostling him every
+time anyone goes pastibus. A snivelling toneibus which is meant to be
+aggressiveibus. When he sees a vacant seatibus he throwticus himself on
+to it.
+Two hours lateribus, I meet him in the Cour de Romeibus, in
+front of the gare Saint-Lazareibus. He’s with a friendibus who’s saying:
+“You ought to get an extra button put on your overcoaticus.” He shows
+him where (at the lapelsibus) and why.
+“Dog Latin” refers to a humorous and
+often crude imitation of Latin, either
+as a jargon or a bad attempt at writing
+genuine Latin. It can involve treat-
+ing English words as if they were
+Latin, by conjugating or declining
+them. The term is also used for poor-
+quality Latin.
+27 Dream In the hallucinatory landscape of a twilight bus, enveloped by the
+commotion of rush hour, dwells a spectral figure of sorts, a lad circling
+his 26th year. A peculiar hat adorned his crown, featuring cords in place
+of conventional ribbons, while his neck stretched bizarrely long, as
+might a marionette’s under the pull of unseen puppeteers. Spectral forms
+wane and reemerge. The enigmatic figure becomes irritated with one of
+the spectral forms flirting in his proximity. He accuses it of a ceaseless
+waltz around his space every time a new form materializes or dissipates.
+His querulous tone vibrates through the dreamlike haze, an odd jigsaw
+where aggression and whine meet. In the event of spotting a vacant
+perch, he flings himself towards it, as a moth would to a tantalizing
+glow.
+Quicker than a dream changes its face, I again encounter him
+some two sunsets later, in the fantastical Cour de Rome, posing before
+the mirage-like Gare Saint-Lazare. He is accompanied by a spectral
+acquaintance uttering soft murmurings: “You ought to stitch an extra
+button onto your overcoat.” As if casting a protective spell, he indicates
+where on the coat – where lapels whisper to the wind – and illuminates
+the reason.
+A “dream vision” writing style in-
+volves narrating a dream or vision.
+Continued on next page
+43
+===== page 44 =====
+Everyone prefers human writers, including AIPREPRINT
+Table S4 continued from previous page
+#Exercise Label AI-Generated Exercise (GPT-4) Exercise Description
+28 Logical analy-
+sis
+Contextual Environment
+The observed scenario takes place in two urban settings characteristic of
+contemporary social interactions:
+A public transportation vehicle during peak hours.
+A transitional urban space near a major train station.
+Behavioral Pattern Analysis
+Initial Interaction: Public Transportation Scenario
+Subject Characteristics:
+Age: Approximately 26 years old.
+Attire: Distinctive hat with unconventional cord attachment.
+Postural Indicators: Elongated neck suggesting internal tension.
+Psychological Mechanisms Observed
+Spatial Anxiety: Manifests through hypersensitivity to physical proxim-
+ity.
+Demonstrates heightened territorial response in crowded public space.
+Verbal aggression used as a psychological defense mechanism.
+Confrontational Behavior:
+Initiates conflict over perceived minor physical disturbance.
+Employs a “snivelling” vocal tone to project aggression while maintain-
+ing plausible deniability.
+Seeks to establish social dominance through confrontational rhetoric.
+Territorial Behavior:
+Rapid occupation of available seating as a form of psychological self-
+preservation.
+Demonstrates need for personal space and control in chaotic urban envi-
+ronment.
+Secondary Interaction: Post-Incident Social Validation
+Social Support Mechanism: Presence of a companion who provides con-
+structive, non-confrontational feedback. Suggestion of minor wardrobe
+adjustment serves as:
+Practical advice.
+Subtle psychological reassurance.
+Indirect method of emotional regulation.
+Psychological Interpretation
+The subject exhibits classic urban stress response characterized by:
+Heightened reactivity to perceived social transgressions. Compensation
+for feelings of vulnerability through aggressive posturing. Underlying
+need for social validation and personal space.
+Sociological Implications
+The narrative illustrates broader urban psychological phenomena: Stress-
+induced interpersonal tensions in high-density environments. Complex
+social negotiation of personal boundaries. Psychological mechanisms of
+coping with perceived threat in shared public spaces.
+Conclusion
+The subject’s behavior represents a nuanced example of individual psy-
+chological adaptation to urban social pressures, revealing the intricate
+interplay between personal space, social anxiety, and interpersonal com-
+munication strategies.
+The base story is rewritten as a logical
+analysis, a method that evaluates ideas
+by breaking them down into compo-
+nent parts.
+Continued on next page
+44
+===== page 45 =====
+Everyone prefers human writers, including AIPREPRINT
+Table S4 continued from previous page
+#Style AI-Generated Exercise (GPT-4) Style Description
+29 Noble Upon the illustrious S-bus during the frenzied clamour of peak hour, a
+distinguished gentleman, perhaps 26 summers old, sporting a stylish
+felt hat adorned not by a ribbon but by a cord, greeted my gaze. His
+neck was of such an unusual length, it seemed as though it had been the
+unfortunate victim of a lively tug-of-war.
+As the bus emptied in throbbing pulses, the aforementioned pa-
+trician appeared to take umbrage with a fellow commuter. He
+indignantly protested the perceived transgressions of this man, whom
+he claimed to jostle him incessantly whenever a fellow passenger
+disembarked. His words were drenched in a whining tone attempting to
+masquerade as aggression. Upon spying an unoccupied pew, he hastily
+claimed it with an air of triumph.
+Upon the passage of two hours, our paths crossed once again,
+this time in the renowned Cour de Rome, before the imposing facade
+of the Gare Saint-Lazare. Our protagonist was in the company of a
+companion, who was offering adamantly, “You would do well to enhance
+your overcoat with an additional button.” He demonstrated meticulously
+where this reinforcement should be placed — upon the lapels — and,
+importantly, expounded on the logic behind his proposition.
+An elevated style can be characterized
+by fancy, old-fashioned or specialized
+vocabulary, high-flying phrases and
+grand-sounding sentences.
+30 Tactile Within the chaotic confines of the rush-hour S bus, a young bloke,
+bordering 26, donned a felt hat, its cord bristling against the soft nap
+in lieu of any ribbon. His neck elongated oddly, shadows dancing
+as if it had been the rope in a tug-of war. Disembarking passengers
+shuffle around. An underlying prickly annoyance stirs within the bloke,
+targeting the man whose elbow persistently nudges his side with every
+human tide that washes past them. His complaint echoes in the metal
+cabin, a guttural whine masked as assertiveness. Spying an unclaimed
+seat, he dives into it, the coarse fabric of the worn-out upholstery
+meeting the finely-tailored rear of his trousers.
+Two sunsets later, I cross paths with him again under the sprawling
+shadow of Cour de Rome, a stone’s throw from the bustling Gare
+Saint-Lazare. In his company, a friend, whose fingers trace invisible
+lines on his companion’s overcoat, assertively advising, “You ought to
+embed an extra button here.” He gestures at the lapels, his fingertips
+making contact with the rough textile, indicating where and why.
+Tactility is the responsiveness to stim-
+ulation of the sense of touch.
+45
+===== page 46 =====
+Everyone prefers human writers, including AIPREPRINT
+Table S5: Response times for human participants across experimental conditions.Mean response times for literary style
+evaluations under three attribution conditions. N indicates the number of individual evaluations. Participants took significantly longer
+to make judgments when no attribution cues were provided compared to either labeled condition (one-way ANOV A:F= 16.393,P
+<0.001).
+Condition N Mean (s) SD (s) Median (s)
+Blind 930 115.7 138 77.6
+Open-Label 925 91.9 88.6 67.6
+Counterfactual 925 89.2 95.6 65.4
+46

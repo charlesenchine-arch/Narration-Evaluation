@@ -1,0 +1,12 @@
+# 核心运行依赖（torch/transformers/datasets/numpy/pandas/accelerate 已预装，列出供环境复现）
+torch>=2.0
+transformers>=4.40
+datasets>=2.0
+numpy
+pandas
+scikit-learn>=1.3
+scipy>=1.10
+jieba>=0.42
+sentence-transformers>=2.5
+accelerate
+safetensors

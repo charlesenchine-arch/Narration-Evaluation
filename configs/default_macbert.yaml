@@ -1,0 +1,47 @@
+# MacBERT 判别器训练/部署配置
+# 用法：
+#   训练：PYTHONPATH=src python scripts/train_macbert_discriminator.py --config configs/default_macbert.yaml
+#   实验脚本切换：--config configs/default_macbert.yaml（或设 NARRATIVE_DISC_TYPE=macbert）
+
+data:
+  n_h_webnovel: 0            # 0 = 全量流式加载（~1000 章）
+  n_h_cnnsum: 0              # 0 = 不加载 CNNSum（避免长文，交给 GPU 决策）
+  n_g_coig: 0                # 0 = 全量（1576 条）
+  n_g_realdet: 0
+  max_chars: 8000
+  max_chars_cnnsum: 30000
+  seed: 42
+
+encoder:
+  name: "BAAI/bge-small-zh-v1.5"
+  max_len: 512
+  batch_size: 32
+  device: "cpu"
+
+discriminator:
+  type: "macbert"
+  model_name: "hfl/chinese-macbert-base"
+  model_path: "data/eval_dataset/models/macbert_discriminator"
+  max_len: 512
+  batch_size: 16
+  device: "auto"
+  epochs: 3
+  lr: 0.00002
+  warmup_ratio: 0.05
+  weight_decay: 0.01
+  seed: 42
+  n_h_train: 3000
+  n_g_train: 3000
+  val_path: "data/eval_dataset/rating_set.jsonl"
+  threads: 24
+
+mix:
+  lambda_disc: 0.333333
+  lambda_repr: 0.333333
+  lambda_attr: 0.333333
+  strict_alpha: 0.2
+  strict_len_base: 0
+
+report:
+  out_dir: null
+  top_attributes: 8
