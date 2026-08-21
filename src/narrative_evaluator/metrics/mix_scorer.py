@@ -19,6 +19,10 @@ fit() 阶段基于 H 参照集预计算归一化所需的参照分布。
 """
 from __future__ import annotations
 
+import hashlib
+import os
+from pathlib import Path
+
 import numpy as np
 
 from ..features.attributes import ATTRIBUTE_KEYS, extract_attributes
@@ -48,7 +52,8 @@ class MixScorer:
     """维护 H 参照分布，提供单篇三视图打分 + 长度严苛度调节。"""
 
     def __init__(self, lambda_disc=1 / 3, lambda_repr=1 / 3, lambda_attr=1 / 3,
-                 strict_alpha=0.2, strict_len_base=None, window_chars=0):
+                 strict_alpha=0.2, strict_len_base=None, window_chars=0,
+                 reference_cache_path=""):
         self.lambdas = np.array([lambda_disc, lambda_repr, lambda_attr], dtype=np.float64)
         self.lambdas = self.lambdas / self.lambdas.sum()
         self.strict_alpha = strict_alpha     # 严苛强度（0=不严苛，温和约0.2）
@@ -56,6 +61,8 @@ class MixScorer:
         # 部署加固：S_repr/S_attr 在"前 window_chars 字符"上计算，0=全文本。
         # 防 B1 末尾注水：末尾追加通用填充会拉高整篇表示相似度，窗口化使其失效。
         self.window_chars = int(window_chars or 0)
+        self.reference_cache_path = str(reference_cache_path or "")
+        self.reference_cache_hit = False
         # fit 后填充
         self.discriminator = None
         self.doc_encoder = None
@@ -78,13 +85,104 @@ class MixScorer:
                 self.strict_len_base = 1000
         # 判别器
         discriminator.fit(h_texts, g_texts)
-        # 表示参照
-        self.h_repr = doc_encoder.encode_documents(h_texts)
+        fingerprint = self._reference_fingerprint(h_texts)
+        if self._load_reference_cache(fingerprint, len(h_texts)):
+            return self
+        # H 参照与待评分文本使用同一探针粒度，避免“400 字候选 vs 完整 H”失配。
+        h_probes = [self._probe(t) for t in h_texts]
+        self.h_repr = doc_encoder.encode_documents(h_probes)
         self._fit_repr_ref()
         # 属性参照
-        self.h_attr = np.array([_attr_vec(t) for t in h_texts])
+        self.h_attr = np.array([_attr_vec(t) for t in h_probes])
         self._fit_attr_ref()
+        self._save_reference_cache(fingerprint)
         return self
+
+    def _reference_fingerprint(self, h_texts) -> str:
+        """H 数据、编码器与评分配置的稳定指纹，用于防止读取过期缓存。"""
+        model_name = getattr(
+            getattr(self.doc_encoder, "sent_enc", None),
+            "model_name",
+            type(self.doc_encoder).__name__,
+        )
+        encoder_max_len = getattr(
+            getattr(self.doc_encoder, "sent_enc", None), "max_len", ""
+        )
+        weight_by_len = getattr(self.doc_encoder, "weight_by_len", "")
+        digest = hashlib.sha256()
+        digest.update(b"narrative-reference-v2-windowed-h\0")
+        digest.update(str(model_name).encode("utf-8"))
+        digest.update(
+            f"\0max_len={encoder_max_len}\0weight_by_len={weight_by_len}"
+            f"\0window={self.window_chars}\0len_base={self.strict_len_base}\0".encode("ascii")
+        )
+        digest.update("\0".join(ATTRIBUTE_KEYS).encode("utf-8"))
+        for text in h_texts:
+            raw = text.encode("utf-8")
+            digest.update(len(raw).to_bytes(8, "big"))
+            digest.update(raw)
+        return digest.hexdigest()
+
+    def _load_reference_cache(self, fingerprint: str, expected_n: int) -> bool:
+        if not self.reference_cache_path:
+            return False
+        path = Path(self.reference_cache_path)
+        if not path.is_file():
+            return False
+        try:
+            with np.load(path, allow_pickle=False) as data:
+                if str(data["fingerprint"].item()) != fingerprint:
+                    return False
+                h_repr = data["h_repr"]
+                h_attr = data["h_attr"]
+                if h_repr.shape[0] != expected_n or h_attr.shape[0] != expected_n:
+                    return False
+                self.h_repr = h_repr
+                self.h_attr = h_attr
+                repr_sims = data["h_repr_sims"]
+                attr_dist = data["h_attr_dist"]
+                self.h_repr_sims = repr_sims if repr_sims.size else None
+                self.h_attr_dist = attr_dist if attr_dist.size else None
+                attr_mu = data["attr_mu"]
+                attr_sd = data["attr_sd"]
+                if h_attr.shape[0] >= 5 and (not attr_mu.size or not attr_sd.size):
+                    return False
+                if attr_mu.size:
+                    self._attr_mu = attr_mu
+                    self._attr_sd = attr_sd
+                self.strict_len_base = int(data["strict_len_base"].item())
+        except (OSError, ValueError, KeyError):
+            return False
+        self.reference_cache_hit = True
+        return True
+
+    def _save_reference_cache(self, fingerprint: str) -> None:
+        if not self.reference_cache_path:
+            return
+        path = Path(self.reference_cache_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp_path = path.with_name(path.name + ".tmp")
+        try:
+            with open(tmp_path, "wb") as f:
+                np.savez_compressed(
+                    f,
+                    fingerprint=np.asarray(fingerprint),
+                    h_repr=self.h_repr,
+                    h_repr_sims=(self.h_repr_sims if self.h_repr_sims is not None
+                                 else np.array([], dtype=np.float64)),
+                    h_attr=self.h_attr,
+                    h_attr_dist=(self.h_attr_dist if self.h_attr_dist is not None
+                                 else np.array([], dtype=np.float64)),
+                    attr_mu=getattr(self, "_attr_mu", np.array([], dtype=np.float64)),
+                    attr_sd=getattr(self, "_attr_sd", np.array([], dtype=np.float64)),
+                    strict_len_base=np.asarray(self.strict_len_base),
+                )
+            os.replace(tmp_path, path)
+        except OSError:
+            try:
+                tmp_path.unlink()
+            except OSError:
+                pass
 
     def _fit_repr_ref(self):
         # H 内部最近余弦相似度分布：用于把新样本的最近相似度映射到分位数

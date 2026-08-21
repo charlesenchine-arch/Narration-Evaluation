@@ -9,6 +9,7 @@ data:
   max_chars: 8000
   max_chars_cnnsum: 30000
   seed: 42
+  eval_fraction: 0.2        # 独立留出 20% 测试集，报告不使用训练样本
 
 encoder:
   name: "BAAI/bge-small-zh-v1.5"
@@ -27,6 +28,7 @@ mix:
   lambda_attr: 0.333333
   strict_alpha: 0.2
   strict_len_base: 0        # 0 = fit 时用 H 中位长度
+  reference_cache_path: "data/eval_dataset/models/h_reference_default.npz"
 
 report:
   out_dir: null            # null = 仅控制台输出；填路径则写报告文件

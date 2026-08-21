@@ -74,3 +74,17 @@ def test_evaluate_set_human_alignment():
     rep = ev.evaluate_set(h, g, h_scores=h_scores)
     assert "alignment" in rep
     assert "spearman_human_H" in rep["alignment"]
+
+
+def test_alignment_uses_fused_like_score():
+    ev = _make_evaluator()
+    ev._fitted = True
+    values = {"甲": 0.1, "乙": 0.5, "丙": 0.9}
+    ev.scorer.components_batch = lambda texts: [
+        {"S_disc": 0.0, "S_repr": values[t], "S_attr": values[t]}
+        for t in texts
+    ]
+    # 如果仍只用判别器，这个反向排序会得到 -1；融合 like 应得到 +1。
+    ev.discriminator.predict_human_prob = lambda texts: np.array([0.9, 0.5, 0.1])
+    result = ev.alignment_spearman(["甲", "乙", "丙"], [1, 2, 3])
+    assert result["spearman_human_H"] == pytest.approx(1.0)

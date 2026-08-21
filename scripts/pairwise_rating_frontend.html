@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>叙事比较评阅</title>
+  <style>
+    :root {
+      --paper: #f5f3ed;
+      --paper-deep: #e9e4d8;
+      --ink: #17212b;
+      --muted: #66717a;
+      --navy: #17324d;
+      --vermilion: #bd3f2f;
+      --line: #c9c4b8;
+      --focus: #3977a8;
+      --shadow: 0 18px 55px rgba(23, 33, 43, .13);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(rgba(23,50,77,.035) 1px, transparent 1px),
+        var(--paper-deep);
+      background-size: 100% 28px;
+      font-family: "Songti SC", "STSong", "Noto Serif CJK SC", serif;
+    }
+    button, input, textarea { font: inherit; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible {
+      outline: 3px solid color-mix(in srgb, var(--focus), transparent 35%);
+      outline-offset: 2px;
+    }
+    .shell { width: min(1480px, 96vw); margin: 24px auto 72px; }
+    header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      border-bottom: 3px double var(--navy);
+      padding: 12px 4px 18px;
+      margin-bottom: 22px;
+    }
+    .kicker {
+      font-family: ui-monospace, "SFMono-Regular", monospace;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--vermilion);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    h1 { margin: 5px 0 0; font-size: clamp(28px, 4vw, 52px); line-height: 1; letter-spacing: -.04em; }
+    .progress { font-family: ui-monospace, "SFMono-Regular", monospace; color: var(--muted); }
+    .login, .workspace {
+      background: rgba(255,255,255,.72);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+    .login { max-width: 520px; margin: 12vh auto; padding: 30px; }
+    .login label { display: block; margin: 18px 0 6px; font-weight: 700; }
+    input[type=text], input[type=password], textarea {
+      width: 100%; border: 1px solid #9fa6aa; background: #fffef9; color: var(--ink);
+      border-radius: 4px; padding: 11px 12px;
+    }
+    .workspace { padding: 20px; }
+    .instruction {
+      display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start;
+      padding: 10px 0 18px; color: var(--muted); font-size: 14px;
+    }
+    .bookmark {
+      background: var(--vermilion); color: white; padding: 5px 9px 9px;
+      font-family: ui-monospace, monospace; font-weight: 800;
+      clip-path: polygon(0 0,100% 0,100% 78%,50% 100%,0 78%);
+    }
+    .texts { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .manuscript { background: #fffef9; border: 1px solid var(--line); min-width: 0; }
+    .manuscript h2 {
+      margin: 0; padding: 12px 16px; background: var(--navy); color: white;
+      font-family: ui-monospace, monospace; font-size: 15px; letter-spacing: .14em;
+    }
+    .text {
+      padding: 22px; min-height: 360px; max-height: 58vh; overflow: auto;
+      white-space: pre-wrap; line-height: 1.9; font-size: 17px;
+    }
+    .form { margin-top: 22px; border-top: 3px double var(--line); padding-top: 20px; }
+    .section-title { font-size: 18px; font-weight: 800; margin: 0 0 10px; }
+    .choices { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    .choice input, .confidence input, .dims input { position: absolute; opacity: 0; pointer-events: none; }
+    .choice span, .confidence span, .dims span {
+      display: block; border: 1px solid var(--line); background: #fffef9; cursor: pointer;
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+    }
+    .choice span { text-align: center; padding: 12px 8px; min-height: 62px; }
+    .choice input:checked + span, .confidence input:checked + span, .dims input:checked + span {
+      border-color: var(--vermilion); background: #fff0e9; box-shadow: inset 0 -3px var(--vermilion);
+    }
+    .choice:hover span, .confidence:hover span, .dims:hover span { transform: translateY(-2px); }
+    .subgrid { display: grid; grid-template-columns: 1fr 2fr; gap: 22px; margin-top: 20px; }
+    .confidence-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+    .confidence span { text-align: center; padding: 9px 4px; }
+    .dims-row { display: flex; flex-wrap: wrap; gap: 7px; }
+    .dims span { padding: 8px 10px; font-size: 14px; }
+    .evidence { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+    textarea { min-height: 88px; resize: vertical; line-height: 1.6; }
+    .actions { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-top: 18px; }
+    .status { color: var(--muted); min-height: 1.5em; }
+    .primary {
+      border: 0; border-radius: 3px; background: var(--vermilion); color: white;
+      padding: 12px 24px; font-weight: 800; cursor: pointer; box-shadow: 4px 4px 0 var(--navy);
+    }
+    .primary:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 var(--navy); }
+    .hidden { display: none !important; }
+    @media (max-width: 850px) {
+      .texts, .subgrid, .evidence { grid-template-columns: 1fr; }
+      .text { min-height: 240px; max-height: 45vh; }
+      .choices { grid-template-columns: 1fr; }
+      header { grid-template-columns: 1fr; gap: 12px; }
+    }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section id="login" class="login">
+      <div class="kicker">Blind comparative reading</div>
+      <h1>叙事比较评阅</h1>
+      <p>先凭整体阅读感受做选择，再说明依据。系统不会显示文本来源。</p>
+      <label for="rater">你的评分者名字</label>
+      <input id="rater" type="text" autocomplete="username" placeholder="例如：reader_07">
+      <label for="password">访问口令（如有）</label>
+      <input id="password" type="password" autocomplete="current-password">
+      <div class="actions"><span id="loginStatus" class="status"></span><button class="primary" id="enter">开始评阅</button></div>
+    </section>
+
+    <section id="app" class="hidden">
+      <header>
+        <div><div class="kicker">Narrative quality protocol · v1</div><h1>哪一篇叙事更成立？</h1></div>
+        <div id="progress" class="progress"></div>
+      </header>
+      <div class="workspace">
+        <div class="instruction"><span class="bookmark">先整体</span><span>不要猜作者是谁。先选整体质量，再勾选影响判断的维度。等级和内部连续分由模型阶段学习，本问卷收集相对偏好。</span></div>
+        <div class="texts">
+          <article class="manuscript"><h2>TEXT A</h2><div id="textA" class="text"></div></article>
+          <article class="manuscript"><h2>TEXT B</h2><div id="textB" class="text"></div></article>
+        </div>
+        <form id="judgeForm" class="form">
+          <p class="section-title">1. 只看整体叙事质量，你更认可哪篇？</p>
+          <div class="choices">
+            <label class="choice"><input type="radio" name="preference" value="2"><span>A 明显更好</span></label>
+            <label class="choice"><input type="radio" name="preference" value="1"><span>A 稍好</span></label>
+            <label class="choice"><input type="radio" name="preference" value="0"><span>两篇相当</span></label>
+            <label class="choice"><input type="radio" name="preference" value="-1"><span>B 稍好</span></label>
+            <label class="choice"><input type="radio" name="preference" value="-2"><span>B 明显更好</span></label>
+          </div>
+          <div class="subgrid">
+            <div>
+              <p class="section-title">2. 你的判断信心</p>
+              <div class="confidence-row">
+                <label class="confidence"><input type="radio" name="confidence" value="1"><span>1</span></label>
+                <label class="confidence"><input type="radio" name="confidence" value="2"><span>2</span></label>
+                <label class="confidence"><input type="radio" name="confidence" value="3"><span>3</span></label>
+                <label class="confidence"><input type="radio" name="confidence" value="4"><span>4</span></label>
+                <label class="confidence"><input type="radio" name="confidence" value="5"><span>5</span></label>
+              </div>
+            </div>
+            <div>
+              <p class="section-title">3. 哪些方面最影响判断？</p>
+              <div id="dims" class="dims-row"></div>
+            </div>
+          </div>
+          <div class="evidence">
+            <label>A 中支持判断的具体内容<textarea id="evidenceA" placeholder="可引用情节、人物行为或具体表达"></textarea></label>
+            <label>B 中支持判断的具体内容<textarea id="evidenceB" placeholder="可引用情节、人物行为或具体表达"></textarea></label>
+          </div>
+          <label style="display:block;margin-top:14px">4. 用一句话说明主要理由<textarea id="rationale" maxlength="240" placeholder="请比较两篇的实际差异，避免“更好、更自然”这类空泛结论"></textarea></label>
+          <div class="actions"><span id="status" class="status"></span><button class="primary" type="submit">保存并看下一对</button></div>
+        </form>
+      </div>
+    </section>
+  </main>
+  <script>
+    const dimLabels = {
+      plot_causality: '情节与因果', character: '人物塑造', language_style: '语言表现',
+      atmosphere_impact: '氛围与感染力', pacing: '节奏',
+      narrative_structure_time: '叙事结构与时间', originality: '新颖性'
+    };
+    const dims = document.querySelector('#dims');
+    Object.entries(dimLabels).forEach(([value, label]) => {
+      dims.insertAdjacentHTML('beforeend', `<label class="dims"><input type="checkbox" value="${value}"><span>${label}</span></label>`);
+    });
+    let rater = '', accessPassword = '', ids = [], completed = new Set(), current = '', started = 0;
+    const $ = s => document.querySelector(s);
+    async function api(url, options={}) {
+      const response = await fetch(url, {headers:{'Content-Type':'application/json', 'X-Access-Password':accessPassword}, ...options});
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || '请求失败');
+      return data;
+    }
+    async function loadNext() {
+      current = ids.find(id => !completed.has(id)) || '';
+      if (!current) {
+        $('#judgeForm').classList.add('hidden');
+        $('#textA').textContent = '本批已完成。'; $('#textB').textContent = '感谢你的判断。';
+        $('#progress').textContent = `${completed.size}/${ids.length}`; return;
+      }
+      const pair = await api(`/api/pair?id=${encodeURIComponent(current)}`);
+      $('#textA').textContent = pair.text_a; $('#textB').textContent = pair.text_b;
+      $('#progress').textContent = `${completed.size + 1}/${ids.length}`;
+      $('#judgeForm').reset(); $('#status').textContent = ''; started = Date.now();
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+    $('#enter').addEventListener('click', async () => {
+      rater = $('#rater').value.trim();
+      accessPassword = $('#password').value;
+      if (!rater) { $('#loginStatus').textContent = '请填写评分者名字。'; return; }
+      try {
+        await api('/api/login', {method:'POST', body:JSON.stringify({password:accessPassword})});
+        const assignment = await api(`/api/pairs?rater=${encodeURIComponent(rater)}`);
+        ids = assignment.ids; completed = new Set(assignment.completed);
+        $('#login').classList.add('hidden'); $('#app').classList.remove('hidden');
+        await loadNext();
+      } catch (error) { $('#loginStatus').textContent = error.message; }
+    });
+    $('#judgeForm').addEventListener('submit', async event => {
+      event.preventDefault();
+      const preference = new FormData(event.currentTarget).get('preference');
+      const confidence = new FormData(event.currentTarget).get('confidence');
+      if (preference === null || confidence === null) { $('#status').textContent = '请先完成总体判断和信心评分。'; return; }
+      const dimensions = [...dims.querySelectorAll('input:checked')].map(el => el.value);
+      const payload = {
+        rater_id:rater, pair_id:current, preference:Number(preference), confidence:Number(confidence), dimensions,
+        evidence_a:$('#evidenceA').value, evidence_b:$('#evidenceB').value,
+        rationale:$('#rationale').value, stay_ms:Date.now()-started
+      };
+      try {
+        $('#status').textContent = '正在保存…';
+        await api('/api/judge', {method:'POST', body:JSON.stringify(payload)});
+        completed.add(current); await loadNext();
+      } catch (error) { $('#status').textContent = error.message; }
+    });
+  </script>
+</body>
+</html>

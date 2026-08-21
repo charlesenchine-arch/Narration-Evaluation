@@ -38,3 +38,9 @@ def test_macbert_path_default():
     cfg = DiscriminatorConfig(type="macbert")
     disc = build_discriminator(cfg)
     assert disc.model_path  # 非空默认路径
+
+
+def test_macbert_require_trained_model_forwarded():
+    cfg = DiscriminatorConfig(type="macbert", require_trained_model=True)
+    disc = build_discriminator(cfg)
+    assert disc.require_trained_model is True

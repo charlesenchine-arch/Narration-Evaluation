@@ -25,7 +25,9 @@ def build_discriminator(cfg, cache_dir=None):
         return MacBertDiscriminator(
             model_name=cfg.model_name,
             model_path=cfg.model_path or "data/eval_dataset/models/macbert_discriminator",
+            require_trained_model=getattr(cfg, "require_trained_model", False),
             max_len=cfg.max_len,
+            window_overlap=getattr(cfg, "window_overlap", 128),
             batch_size=cfg.batch_size,
             device=cfg.device,
             cache_dir=cache_dir,

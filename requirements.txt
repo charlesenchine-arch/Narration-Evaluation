@@ -10,3 +10,5 @@ jieba>=0.42
 sentence-transformers>=2.5
 accelerate
 safetensors
+pyyaml>=6.0
+openai>=1.0

@@ -3,11 +3,13 @@ secrets.env
 
 # Local tool config
 .claude/
+.DS_Store
 
 # Python caches
 __pycache__/
 *.pyc
 .pytest_cache/
+.venv/
 
 # Runtime logs
 logs/
@@ -17,3 +19,21 @@ data/eval_dataset/hf_cache/
 data/eval_dataset/models/
 *.safetensors
 *.bin
+
+# Human-pilot source caches and review artifacts may contain redistributability-
+# pending texts. Keep them local; only schemas, scripts, and documentation are tracked.
+data/human_pilot/cache/
+data/human_pilot/private/
+data/human_pilot/review/
+data/human_pilot/generated/
+data/human_pilot/pilot20/
+data/eval_dataset/pairwise/
+
+# Generated pilot analyses and document-render QA are local/reproducible and may
+# contain derived excerpts or review metadata. Commit scripts and final reports,
+# not their intermediate outputs.
+outputs/
+
+# Generated protocol binaries can lag behind the normative Markdown sources.
+deliverables/中文叙事质量评估器_论文协议_v*.docx
+deliverables/中文叙事质量评估器_论文协议_v*.pdf

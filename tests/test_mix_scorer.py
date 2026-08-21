@@ -61,6 +61,49 @@ def test_lambdas_normalized():
     assert abs(m.lambdas.sum() - 1.0) < 1e-9
 
 
+def test_reference_cache_roundtrip(tmp_path):
+    class CountingEncoder(FakeEncoder):
+        def __init__(self):
+            self.calls = 0
+
+        def encode_documents(self, texts):
+            self.calls += 1
+            return super().encode_documents(texts)
+
+    h = ["人类文本", "短句", "短文", "叙事", "中文", "好的"]
+    g = ["机器生成文本一", "机器生成文本二"]
+    cache = str(tmp_path / "reference.npz")
+
+    first_encoder = CountingEncoder()
+    first = MixScorer(reference_cache_path=cache)
+    first.fit(h, g, FakeDiscriminator(), first_encoder)
+    assert first_encoder.calls == 1
+    assert not first.reference_cache_hit
+
+    second_encoder = CountingEncoder()
+    second = MixScorer(reference_cache_path=cache)
+    second.fit(h, g, FakeDiscriminator(), second_encoder)
+    assert second.reference_cache_hit
+    assert second_encoder.calls == 0
+    assert np.array_equal(second.h_repr, first.h_repr)
+
+
+def test_h_reference_uses_same_window_as_candidate():
+    class RecordingEncoder(FakeEncoder):
+        def __init__(self):
+            self.seen = None
+
+        def encode_documents(self, texts):
+            self.seen = list(texts)
+            return super().encode_documents(texts)
+
+    h = ["人" * 600 for _ in range(6)]
+    encoder = RecordingEncoder()
+    scorer = MixScorer(window_chars=400)
+    scorer.fit(h, ["机器文本"], FakeDiscriminator(), encoder)
+    assert all(len(t) == 400 for t in encoder.seen)
+
+
 def test_strictness_kappa_monotonic():
     # κ 随长度递增：长度≤基准=1，超出基准>1
     assert _strictness_kappa(100, 0.5, 1000) == 1.0          # 短，宽容

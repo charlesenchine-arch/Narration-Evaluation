@@ -1,0 +1,72 @@
+# Human-aligned narrative quality protocol (v2)
+task:
+  primary: pairwise_preference
+  secondary:
+    - calibrated_utility_0_100
+    - abcdf_grade
+    - evidence_grounded_critique
+  explicitly_not_primary: human_vs_machine_detection
+
+grade_scale:
+  A: {minimum: 92, label: 顶级}
+  B: {minimum: 80, label: 优秀}
+  C: {minimum: 65, label: 合格}
+  D: {minimum: 50, label: 较弱}
+  F: {minimum: 0, label: 未达标}
+  calibration: held_out_human_preferences
+
+dimensions:
+  - plot_causality
+  - character
+  - language_style
+  - atmosphere_impact
+  - pacing
+  - narrative_structure_time
+  - originality
+
+annotation:
+  comparisons_per_item: 3
+  raters_per_pair: 3
+  minimum_stay_ms: 8000
+  preference_values: [-2, -1, 0, 1, 2]
+  collect_confidence: true
+  collect_textual_evidence: true
+  holistic_judgment_before_dimensions: true
+  blind_source_and_generator: true
+
+splits:
+  primary:
+    mode: group_disjoint
+    group_priority: [work_id, prompt_id, item_id]
+    eval_fraction: 0.2
+  robustness:
+    - generator_holdout
+    - genre_holdout
+    - near_tie_subset
+  pair_random: smoke_test_only
+
+baselines:
+  - length_only
+  - existing_humanness_score
+  - character_tfidf_bradley_terry
+  - strong_zero_shot_llm_judge
+  - rubric_llm_judge
+  - specialized_reward_model
+
+metrics:
+  primary:
+    - pairwise_accuracy
+    - near_tie_pairwise_accuracy
+  calibration:
+    - brier_score
+    - log_loss
+    - expected_calibration_error
+  ranking:
+    - kendall_tau
+    - spearman_rho
+  reliability:
+    - krippendorff_alpha_ordinal
+    - bootstrap_confidence_interval
+  critique:
+    - evidence_support_rate
+    - human_preference_for_critique

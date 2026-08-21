@@ -24,6 +24,8 @@ class DataConfig:
     # CNNSum 是长篇小说摘录，放宽截断以保真长度分布（严苛度基准依赖真实长度）
     max_chars_cnnsum: int = 30000
     seed: int = 42
+    # CLI 将每个 H/G 数据池独立留出该比例作为测试集，避免训练集上报告 AUC。
+    eval_fraction: float = 0.2
 
 
 @dataclass
@@ -45,7 +47,11 @@ class DiscriminatorConfig:
     # macbert 配置
     model_name: str = "hfl/chinese-macbert-base"
     model_path: str = ""          # 空 → 默认 data/eval_dataset/models/macbert_discriminator
+    # 部署模式下要求 model_path 已包含微调产物，避免误用未训练的基础 MacBERT。
+    require_trained_model: bool = False
     max_len: int = 512
+    # 长文按 token 重叠滑窗；这里是相邻窗口重复的 token 数。
+    window_overlap: int = 128
     batch_size: int = 16
     device: str = "auto"          # auto=cuda 可用则用 GPU，否则 CPU
     epochs: int = 3
@@ -73,6 +79,9 @@ class MixConfig:
     # 防 B1 注水攻击：末尾追加通用填充会把整篇向量拉向 H 质心使 S_repr 虚涨；
     # 窗口化后填充不影响窗口内容，表示/属性视图不再被"通用化填充"骗高。
     window_chars: int = 0
+    # H 语义/属性参照缓存；空字符串表示不持久化。
+    # 缓存内含 H 文本和编码器配置指纹，输入变化时会自动重建。
+    reference_cache_path: str = ""
 
 
 @dataclass

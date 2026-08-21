@@ -5,7 +5,7 @@
 #   2. α=0.5 严苛度：窗口化后 append/selfrepeat 已全堵，interleave 插入填充
 #      会被窗口部分捕捉（S_repr 0.048→0.13），α=0.5 用长度惩罚把 interleave 也压到 ≤0。
 #      H 自然长文(~2x) 约 -12%（极端长度才触发；典型长度 ≤L0 无惩罚）。
-#   3. S_disc 用全文本（MacBERT 稳健，AUC 0.9995，注水下恒定 0.007）
+#   3. S_disc 用重叠 token 滑窗覆盖全文，再平均各窗口 P(human)
 
 data:
   n_h_webnovel: 0
@@ -15,6 +15,7 @@ data:
   max_chars: 8000
   max_chars_cnnsum: 30000
   seed: 42
+  eval_fraction: 0.2
 
 encoder:
   name: "BAAI/bge-small-zh-v1.5"
@@ -26,7 +27,9 @@ discriminator:
   type: "macbert"
   model_name: "hfl/chinese-macbert-base"
   model_path: "data/eval_dataset/models/macbert_discriminator"
+  require_trained_model: true   # 部署必须使用已微调权重；缺失时立即报错
   max_len: 512
+  window_overlap: 128        # 512-token 滑窗，相邻窗口重叠 128 token
   batch_size: 16
   device: "auto"
   epochs: 3
@@ -46,6 +49,7 @@ mix:
   strict_alpha: 0.5
   strict_len_base: 0
   window_chars: 400
+  reference_cache_path: "data/eval_dataset/models/h_reference_deploy.npz"
 
 report:
   out_dir: null

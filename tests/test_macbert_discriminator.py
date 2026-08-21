@@ -44,6 +44,39 @@ def test_predict_shape_and_range():
         assert all(0.0 <= x <= 1.0 for x in p)
 
 
+def test_deploy_mode_fails_fast_without_trained_weights():
+    with tempfile.TemporaryDirectory() as tmp:
+        missing = os.path.join(tmp, "missing_model")
+        disc = MacBertDiscriminator(
+            model_path=missing,
+            require_trained_model=True,
+        )
+        with pytest.raises(FileNotFoundError, match="未找到已训练的 MacBERT"):
+            disc._load()
+
+
+def test_long_text_tokenization_creates_multiple_windows():
+    with tempfile.TemporaryDirectory() as tmp:
+        model, tok = _tiny_model_path(tmp)
+        disc = MacBertDiscriminator(
+            model_path=os.path.join(tmp, "model_out"),
+            max_len=8,
+            window_overlap=2,
+            _model=model,
+            _tokenizer=tok,
+        )
+        encoded, mapping = disc._tokenize_windows(["人工机器文本测试写作样品" * 4])
+        assert len(encoded["input_ids"]) > 1
+        assert mapping == [0] * len(mapping)
+
+
+def test_window_probabilities_are_aggregated_per_document():
+    result = MacBertDiscriminator._aggregate_window_probs(
+        [0.2, 0.4, 0.9], [0, 0, 1], 2
+    )
+    assert result == pytest.approx([0.3, 0.9])
+
+
 def test_fit_roundtrip_save_load():
     with tempfile.TemporaryDirectory() as tmp:
         model, tok = _tiny_model_path(tmp)

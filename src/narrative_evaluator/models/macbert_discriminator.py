@@ -13,6 +13,8 @@
   这样实验脚本（A3/B1/解耦）加载部署判别器即可，不对几百条评分集重训。
 - 惰性加载（同 encoder.py）：构造不下载不加载，首次 fit/predict 才 from_pretrained。
 - length_match=True 复用了 discriminator.py 的 _length_match，长度不变性在训练阶段保证。
+- 超过 max_len 的文本按 token 重叠滑窗，文档概率取全部窗口 P(human) 的均值，
+  不再只读取开头 512 token。
 """
 from __future__ import annotations
 
@@ -61,12 +63,14 @@ def _collate(batch, max_len):
 
 class MacBertDiscriminator:
     def __init__(self, model_name="hfl/chinese-macbert-base", model_path="",
-                 max_len=512, batch_size=16, device="cpu", cache_dir=None,
+                 max_len=512, window_overlap=128, batch_size=16, device="cpu", cache_dir=None,
                  epochs=3, lr=2e-5, warmup_ratio=0.05, weight_decay=0.01,
-                 seed=42, threads=0, _model=None, _tokenizer=None):
+                 seed=42, threads=0, require_trained_model=False,
+                 _model=None, _tokenizer=None):
         self.model_name = model_name
         self.model_path = model_path or "data/eval_dataset/models/macbert_discriminator"
         self.max_len = max_len
+        self.window_overlap = window_overlap
         self.batch_size = batch_size
         self.device = device
         self.cache_dir = cache_dir
@@ -76,6 +80,7 @@ class MacBertDiscriminator:
         self.weight_decay = weight_decay
         self.seed = seed
         self.threads = threads
+        self.require_trained_model = require_trained_model
         # 测试注入极小模型/分词器用；否则 None，惰性加载
         self._model = _model
         self._tokenizer = _tokenizer
@@ -98,10 +103,19 @@ class MacBertDiscriminator:
         """从本地产物目录加载模型+分词器；无则加载预训练模型。"""
         if self._model is not None and self._tokenizer is not None:
             return
+        local_model_exists = os.path.isdir(self.model_path) and os.path.exists(
+            os.path.join(self.model_path, "config.json")
+        )
+        if self.require_trained_model and not local_model_exists:
+            raise FileNotFoundError(
+                f"未找到已训练的 MacBERT 判别器：{self.model_path}\n"
+                "部署配置不会自动使用未微调的基础模型。请先运行：\n"
+                "PYTHONPATH=src python scripts/train_macbert_discriminator.py "
+                "--config configs/default_macbert.yaml"
+            )
         from transformers import AutoModelForSequenceClassification, AutoTokenizer
         if self._model is None:
-            if os.path.isdir(self.model_path) and os.path.exists(
-                    os.path.join(self.model_path, "config.json")):
+            if local_model_exists:
                 # 本地产物：默认加载（优先 safetensors，由训练 save_pretrained 生成）
                 self._model = AutoModelForSequenceClassification.from_pretrained(
                     self.model_path, cache_dir=self.cache_dir)
@@ -193,6 +207,45 @@ class MacBertDiscriminator:
             return_tensors=None,
         )
 
+    def _tokenize_windows(self, texts: List[str]):
+        """把长文切成重叠 token 窗口，返回 token 结果及窗口到原文的映射。"""
+        texts = list(texts)
+        if not texts:
+            return {"input_ids": [], "attention_mask": []}, []
+        # transformers 的 stride 表示相邻窗口重复量；限制到半窗以内，避免无效配置。
+        overlap = min(max(0, int(self.window_overlap)), max(0, self.max_len // 2))
+        tok = self._tokenizer(
+            texts,
+            max_length=self.max_len,
+            truncation=True,
+            padding=False,
+            return_tensors=None,
+            return_overflowing_tokens=True,
+            stride=overlap,
+        )
+        mapping = tok.get("overflow_to_sample_mapping")
+        if mapping is None:
+            # Fast tokenizer会提供映射；无溢出且未返回时是一篇对应一个窗口。
+            if len(tok["input_ids"]) != len(texts):
+                raise RuntimeError("tokenizer 未返回 overflow_to_sample_mapping，无法聚合长文窗口")
+            mapping = list(range(len(texts)))
+        return tok, [int(i) for i in mapping]
+
+    @staticmethod
+    def _aggregate_window_probs(window_probs, mapping, n_texts: int) -> np.ndarray:
+        """按原文索引平均多个窗口概率。"""
+        window_probs = np.asarray(window_probs, dtype=np.float64)
+        mapping = np.asarray(mapping, dtype=np.int64)
+        if window_probs.size != mapping.size:
+            raise ValueError("窗口概率数量与映射数量不一致")
+        sums = np.zeros(n_texts, dtype=np.float64)
+        counts = np.zeros(n_texts, dtype=np.int64)
+        np.add.at(sums, mapping, window_probs)
+        np.add.at(counts, mapping, 1)
+        if np.any(counts == 0):
+            raise RuntimeError("部分文本未生成 MacBERT token 窗口")
+        return sums / counts
+
     def _train_loop(self, h_train, g_train, h_val, g_val):
         from torch.utils.data import DataLoader
         from transformers import get_linear_schedule_with_warmup
@@ -205,17 +258,19 @@ class MacBertDiscriminator:
         texts = [texts[i] for i in perm]
         labels = labels[perm]
 
-        tok = self._tokenize(texts)
+        tok, train_mapping = self._tokenize_windows(texts)
         train_ds = _SimpleDataset(
             [list(x) for x in tok["input_ids"]],
             [list(x) for x in tok["attention_mask"]],
-            list(labels),
+            [int(labels[i]) for i in train_mapping],
         )
-        val_tok = self._tokenize(h_val + g_val)
+        val_texts = h_val + g_val
+        val_labels = np.array([1] * len(h_val) + [0] * len(g_val))
+        val_tok, val_mapping = self._tokenize_windows(val_texts)
         val_ds = _SimpleDataset(
             [list(x) for x in val_tok["input_ids"]],
             [list(x) for x in val_tok["attention_mask"]],
-            [1] * len(h_val) + [0] * len(g_val),
+            [int(val_labels[i]) for i in val_mapping],
         )
 
         train_dl = DataLoader(train_ds, batch_size=self.batch_size,
@@ -288,11 +343,11 @@ class MacBertDiscriminator:
         texts = list(texts)
         if not texts:
             return np.zeros((0,), dtype=np.float64)
-        tok = self._tokenize(texts)
+        tok, mapping = self._tokenize_windows(texts)
         ds = _SimpleDataset(
             [list(x) for x in tok["input_ids"]],
             [list(x) for x in tok["attention_mask"]],
-            [0] * len(texts),
+            [0] * len(mapping),
         )
         dl = DataLoader(ds, batch_size=32, collate_fn=lambda b: _collate(b, self.max_len))
         self._model.eval()
@@ -304,7 +359,8 @@ class MacBertDiscriminator:
                 prob = torch.softmax(logits, dim=-1)[:, 1]
                 ps.extend(prob.cpu().numpy().tolist())
         self._model.train()
-        return np.asarray(ps, dtype=np.float64)
+        # 一个文档可能对应多个窗口；取窗口人类概率均值作为整篇分数。
+        return self._aggregate_window_probs(ps, mapping, len(texts))
 
     def auc(self, h_texts, g_texts) -> float:
         texts = list(h_texts) + list(g_texts)

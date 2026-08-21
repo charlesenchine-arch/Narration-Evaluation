@@ -11,6 +11,7 @@ data:
   max_chars: 8000
   max_chars_cnnsum: 30000
   seed: 42
+  eval_fraction: 0.2
 
 encoder:
   name: "BAAI/bge-small-zh-v1.5"
@@ -22,7 +23,9 @@ discriminator:
   type: "macbert"
   model_name: "hfl/chinese-macbert-base"
   model_path: "data/eval_dataset/models/macbert_discriminator"
+  require_trained_model: false  # 训练配置：缺少产物时允许从基础模型开始微调
   max_len: 512
+  window_overlap: 128        # 长文滑窗，相邻窗口重复 token 数
   batch_size: 16
   device: "auto"
   epochs: 3
@@ -41,6 +44,7 @@ mix:
   lambda_attr: 0.333333
   strict_alpha: 0.2
   strict_len_base: 0
+  reference_cache_path: "data/eval_dataset/models/h_reference_macbert.npz"
 
 report:
   out_dir: null

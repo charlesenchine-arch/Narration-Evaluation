@@ -2,6 +2,8 @@
 
 构建一个**模仿人类审美的中文叙事文本评估器**。核心定位不是"机器文本检测最准"，而是评估器对文本的判断逻辑和输出**像人类评委**。最终作为叙事时间 Transformer 生成文本的 reward 信号：`score_text(生成文本) → 分数`。
 
+> **质量评估 v2**：论文主任务已升级为“人类成对偏好 → 潜在连续效用 → A/B/C/D/F 等级 + 证据化评语”。旧的“像人分”保留为来源/风格分析与负对照，不再充当叙事质量金标准。完整协议见 `docs/QUALITY_EVALUATION_PROTOCOL.md`。
+
 ## 核心思想
 
 - **三视图像人分**：`score_text = λ₁·S_disc + λ₂·S_repr + λ₃·S_attr`
@@ -9,6 +11,7 @@
   - `S_repr`：冻结编码器（bge-small-zh-v1.5）文本向量到 H 参照集合的最近余弦相似度分位
   - `S_attr`：11 个可解释属性（句长/词汇丰富度/标点/重复率等）相对 H 分布的马氏距离
 - **长度严苛度**：`final = 像人分^κ(len)`，长文机器更易露馅，故评估器对长文更严苛
+- **长文判别**：MacBERT 以重叠 token 滑窗覆盖全文，再汇总窗口概率，不只读取开头 512 token
 - **解耦性**（论文主线）：像人分 vs 质量分是两个**正交维度**——像人分能判断"像不像人"，对"好不好"一无所知
 
 ## 目录结构
@@ -32,10 +35,15 @@ pip install -r requirements.txt
 
 GPU 训练 MacBERT 判别器需 CUDA 版 torch（本项目用 `torch 2.13.0+cu126`，RTX 4060 Laptop）。
 
+仓库不提交 MacBERT 权重。使用 `configs/default_deploy.yaml` 前，需先运行下方训练命令，
+确保 `data/eval_dataset/models/macbert_discriminator/` 中已有微调产物；部署配置在权重
+缺失时会直接报错，避免误用未微调的基础模型。H 语义/属性参照会按配置缓存为 `.npz`，
+H 数据或编码器配置变化时自动重建。
+
 ## 快速使用
 
 ```bash
-# 评估器 CLI：流式拉数据 → fit → 分布距离报告
+# 评估器 CLI：流式拉数据 → 独立训练/测试拆分 → fit → 测试集分布距离报告
 PYTHONPATH=src python -m narrative_evaluator.cli --config configs/default.yaml
 
 # MacBERT 判别器训练（GPU ~1min）
@@ -64,6 +72,25 @@ python scripts/rating_server.py --data data/eval_dataset/rating_set.jsonl \
     --per-rater 15 --host 0.0.0.0 --password narrate2026
 ```
 
+### 成对质量盲评（推荐论文流程）
+
+```bash
+# 1. 构造长度/题材尽量匹配的比较对（默认排除旧锚点）
+PYTHONPATH=src python scripts/build_pairwise_dataset.py
+
+# 2. 启动“总体判断优先”的盲评界面
+PYTHONPATH=src python scripts/pairwise_rating_server.py \
+    --pairs data/eval_dataset/pairwise/pairs.jsonl --per-rater 20 --port 8780
+
+# 3. 训练轻量 Bradley–Terry 基线；默认按作品/提示/文本严格留出
+PYTHONPATH=src python scripts/train_quality_reward.py --split-mode group_disjoint
+
+# 4. 强 LLM-as-a-Judge 对照（兼容 OpenAI SDK 的服务）
+JUDGE_API_KEY=... PYTHONPATH=src python scripts/llm_pairwise_judge.py
+```
+
+默认等级为 A≥92、B≥80、C≥65、D≥50、F<50；阈值必须在开发集校准后冻结。配置见 `configs/quality_pairwise.yaml`，数据与基线调研见 `docs/dataset_and_baseline_survey.md`。
+
 ## 数据集
 
 自建 `data/eval_dataset/rating_set.jsonl`（600 条，评分集合计）：
@@ -86,6 +113,10 @@ H 网络小说切块 300 + G 非章回 DeepSeek 100 + G 章回体 DeepSeek 100 +
 - `docs/paper_draft_en.md` — 英文论文草稿（ACL 风格）
 - `docs/literature_review.md` + `docs/references.bib` — 文献综述与引用库
 - `docs/evaluator_turing_test_protocol.md` — 评估者图灵测试协议
+- `docs/QUALITY_EVALUATION_PROTOCOL.md` — ABCDF + 成对偏好 + 证据化评语的论文协议
+- `docs/DATASET_CONSTRUCTION_REQUIREMENTS.md` — Pool A 外部训练混池与 Pool B 自建冻结实验的统一规范
+- `docs/DATASET_BUILD_PLAN.md` — 外部数据接入、自建同 Prompt 组文与 API 执行计划
+- `docs/dataset_and_baseline_survey.md` — 数据集、许可证风险与强基线调研
 
 ## 仓库说明
 

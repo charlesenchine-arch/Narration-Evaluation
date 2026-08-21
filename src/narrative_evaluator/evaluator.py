@@ -44,6 +44,7 @@ class Evaluator:
             strict_alpha=config.mix.strict_alpha,
             strict_len_base=config.mix.strict_len_base or None,  # 0 → 自适应 H 中位
             window_chars=config.mix.window_chars,
+            reference_cache_path=config.mix.reference_cache_path,
         )
         self._fitted = False
 
@@ -68,9 +69,9 @@ class Evaluator:
             raise RuntimeError("Evaluator not fitted: call fit() first")
         return self.scorer.components(text)
 
-    # ---- 人类对齐（轻量，仅判别器） ----
+    # ---- 人类对齐（三视图融合 like） ----
     def alignment_spearman(self, h_texts, h_scores, g_texts=None, g_scores=None):
-        """评估器分数与人类评分的 Spearman。只需判别器概率，不做距离计算。"""
+        """三视图融合 like 分与人类评分的 Spearman。"""
         if not self._fitted:
             raise RuntimeError("Evaluator not fitted: call fit() first")
         return self._compute_alignment(
@@ -121,7 +122,7 @@ class Evaluator:
         per_attr = _per_attribute_distance(h_attr, g_attr)
         d_attr_weighted = float(np.mean(list(per_attr.values()))) if per_attr else np.nan
 
-        # 人类对齐：用判别器分数（或融合分数）与人类评分算 Spearman
+        # 人类对齐：用三视图融合 like 分与人类评分算 Spearman
         alignment = self._compute_alignment(h_texts, g_texts, h_scores, g_scores)
 
         # 融合总分
@@ -167,35 +168,48 @@ class Evaluator:
         return report
 
     def _compute_alignment(self, h_texts, g_texts, h_scores, g_scores):
-        """评估器分数与人类评分的 Spearman。任一侧缺评分则只算有的一侧。"""
+        """三视图融合 like 分与人类评分的 Spearman。"""
         h_texts = list(h_texts)
         g_texts = list(g_texts)
         h_scores = list(h_scores) if h_scores is not None else []
         g_scores = list(g_scores) if g_scores is not None else []
         if not h_scores and not g_scores:
             return None
+        ev_h = self._like_scores(h_texts) if h_scores else np.array([])
+        ev_g = self._like_scores(g_texts) if g_scores else np.array([])
         # 分别算 Spearman，避免人为地把 H/G 混在一起制造假相关
         res = {}
         if len(h_scores) >= 3 and len(h_texts) == len(h_scores):
-            ev_h = self.discriminator.predict_human_prob(h_texts)
             r_h, p_h = spearmanr(ev_h, h_scores)
             res["spearman_human_H"] = float(r_h)
             res["spearman_p_H"] = float(p_h)
         if len(g_scores) >= 3 and len(g_texts) == len(g_scores):
-            ev_g = self.discriminator.predict_human_prob(g_texts)
             r_g, p_g = spearmanr(ev_g, g_scores)
             res["spearman_human_G"] = float(r_g)
             res["spearman_p_G"] = float(p_g)
         # 合并两组的 Spearman（若两组都有分）
         if len(h_scores) >= 3 and len(g_scores) >= 3 and len(h_texts) == len(h_scores) and len(g_texts) == len(g_scores):
-            ev_h = self.discriminator.predict_human_prob(h_texts)
-            ev_g = self.discriminator.predict_human_prob(g_texts)
             all_ev = np.concatenate([ev_h, ev_g])
             all_hm = np.concatenate([h_scores, g_scores])
             r_all, p_all = spearmanr(all_ev, all_hm)
             res["spearman_human_all"] = float(r_all)
             res["spearman_p_all"] = float(p_all)
         return res or None
+
+    def _like_scores(self, texts) -> np.ndarray:
+        """批量计算未施加长度衰减的三视图融合类人分。"""
+        components = self.scorer.components_batch(texts)
+        weights = self.scorer.lambdas
+        return np.asarray([
+            np.clip(
+                weights[0] * c["S_disc"]
+                + weights[1] * c["S_repr"]
+                + weights[2] * c["S_attr"],
+                0.0,
+                1.0,
+            )
+            for c in components
+        ], dtype=np.float64)
 
 
 def _attr_vec(text: str) -> list:
