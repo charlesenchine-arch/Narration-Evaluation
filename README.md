@@ -4,6 +4,8 @@
 
 > **质量评估 v2**：论文主任务已升级为“人类成对偏好 → 潜在连续效用 → A/B/C/D/F 等级 + 证据化评语”。旧的“像人分”保留为来源/风格分析与负对照，不再充当叙事质量金标准。完整协议见 `docs/QUALITY_EVALUATION_PROTOCOL.md`。
 
+> **当前主实验 v4**：先检验大模型评审是否在控制人类共识质量后偏好自身或同一模型家族的生成文本，以及机器判断是否超出人类评审之间的正常分歧。文本目标约 500 字，人类端采用单人单题的匿名两两比较，模型端采用同一 pair 的位置互换复测；名著节选另设人类文学锚点实验，不混入核心家族偏好系数。完整协议见 `docs/FAMILY_AESTHETIC_BIAS_PROTOCOL.md`。
+
 ## 核心思想
 
 - **三视图像人分**：`score_text = λ₁·S_disc + λ₂·S_repr + λ₃·S_attr`
@@ -114,6 +116,8 @@ H 网络小说切块 300 + G 非章回 DeepSeek 100 + G 章回体 DeepSeek 100 +
 - `docs/literature_review.md` + `docs/references.bib` — 文献综述与引用库
 - `docs/evaluator_turing_test_protocol.md` — 评估者图灵测试协议
 - `docs/QUALITY_EVALUATION_PROTOCOL.md` — ABCDF + 成对偏好 + 证据化评语的论文协议
+- `docs/FAMILY_AESTHETIC_BIAS_PROTOCOL.md` — 当前主协议：模型自身与家族偏好、机器与人类判断偏差
+- `docs/HUMAN_LITERARY_ANCHOR_SOURCES.md` — 约 500 字人类文学锚点的首批名著来源与版权审计规则
 - `docs/DATASET_CONSTRUCTION_REQUIREMENTS.md` — Pool A 外部训练混池与 Pool B 自建冻结实验的统一规范
 - `docs/DATASET_BUILD_PLAN.md` — 外部数据接入、自建同 Prompt 组文与 API 执行计划
 - `docs/dataset_and_baseline_survey.md` — 数据集、许可证风险与强基线调研

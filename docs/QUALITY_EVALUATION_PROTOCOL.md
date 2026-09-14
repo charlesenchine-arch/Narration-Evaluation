@@ -1,5 +1,7 @@
 # 中文叙事质量评估器：论文与实验协议 v2.0
 
+> 状态说明：本文保留质量评估器与来源解耦的原始方案。2026-09-13 起，当前论文的首要验证问题已调整为“大模型是否偏好自身或同家族生成文本，以及机器判断是否系统偏离人类判断”。新的主协议见 [`FAMILY_AESTHETIC_BIAS_PROTOCOL.md`](FAMILY_AESTHETIC_BIAS_PROTOCOL.md)。本文中的 reward model、ABCDF 等级和证据化评语改为后续扩展，不再是第一阶段数据采集的前置条件。
+
 更新日期：2026-08-21
 
 > 本文定义论文问题和实验协议；数据采集、纳入排除、生成、标注、字段、切分和扩容的统一执行标准见 [`DATASET_CONSTRUCTION_REQUIREMENTS.md`](DATASET_CONSTRUCTION_REQUIREMENTS.md)。
